@@ -1,0 +1,17 @@
+<!-- Exemple de modification pour le header Shopify -->
+<!-- Remplacez le lien du logo dans votre fichier header.liquid -->
+
+<!-- AVANT (redirection vers la boutique Shopify) -->
+<a href="{{ shop.url }}" class="header__logo-link">
+  <img src="{{ settings.logo | img_url: 'medium' }}" alt="{{ shop.name }}" class="header__logo">
+</a>
+
+<!-- APRÈS (redirection vers votre application personnalisée) -->
+<a href="http://localhost:3000" class="header__logo-link" target="_blank">
+  <img src="{{ settings.logo | img_url: 'medium' }}" alt="{{ shop.name }}" class="header__logo">
+</a>
+
+<!-- OU pour la production, utilisez votre URL de production -->
+<a href="https://votre-domaine.com" class="header__logo-link" target="_blank">
+  <img src="{{ settings.logo | img_url: 'medium' }}" alt="{{ shop.name }}" class="header__logo">
+</a>
