@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom'; // Footer component with updated contact and CGV links
 import styled from 'styled-components';
 import {
   Mail,

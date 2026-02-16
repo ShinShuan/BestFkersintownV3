@@ -29,25 +29,45 @@ export default async function handler(req, res) {
   const bigCommerceUrl = `https://api.bigcommerce.com/stores/${BC_STORE_HASH}/v3/${apiPath}`;
 
   try {
-    const response = await fetch(bigCommerceUrl, {
+    console.log(`Forwarding ${req.method} request to BigCommerce: ${bigCommerceUrl}`);
+
+    const fetchOptions = {
       method: req.method,
       headers: {
         'X-Auth-Token': BC_ACCESS_TOKEN,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
-      },
-      body: req.method !== 'GET' && req.method !== 'HEAD' ? JSON.stringify(req.body) : undefined
-    });
+      }
+    };
 
-    const data = await response.json();
+    if (req.method !== 'GET' && req.method !== 'HEAD' && req.body) {
+      fetchOptions.body = JSON.stringify(req.body);
+    }
+
+    const response = await fetch(bigCommerceUrl, fetchOptions);
+
+    // Log non-200 responses
+    if (!response.ok) {
+      console.error(`BigCommerce API returned status ${response.status} for ${apiPath}`);
+    }
+
+    const contentType = response.headers.get('content-type');
+    let data;
+
+    if (contentType && contentType.includes('application/json')) {
+      data = await response.json();
+    } else {
+      data = await response.text();
+    }
 
     // Transférer le status code de BigCommerce
     res.status(response.status).json(data);
   } catch (error) {
-    console.error('BigCommerce API Error:', error);
+    console.error('Proxy Error:', error);
     res.status(500).json({
       error: 'Failed to fetch from BigCommerce API',
-      message: error.message
+      message: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 }
