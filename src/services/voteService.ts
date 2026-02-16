@@ -9,7 +9,7 @@
  * et bascule sur localStorage sinon.
  */
 
-import { supabase, isSupabaseConfigured, getUserIdentifier } from './supabaseClient';
+import { getSupabaseClient, isSupabaseConfigured, getUserIdentifier } from './supabaseClient';
 
 // Types
 export interface VoteItem {
@@ -232,8 +232,9 @@ export const voteService = {
   // --- VOTE ITEMS ---
 
   async getVoteItems(activeOnly: boolean = false): Promise<VoteItem[]> {
-    if (isSupabaseConfigured && supabase) {
-      let query = supabase.from('vote_items').select('*').order('votes', { ascending: false });
+    if (isSupabaseConfigured) {
+      const client = getSupabaseClient();
+      let query = client.from('vote_items' as any).select('*').order('votes', { ascending: false });
 
       if (activeOnly) {
         query = query.eq('is_active', true);
@@ -255,9 +256,10 @@ export const voteService = {
   },
 
   async getVoteItemById(id: string): Promise<VoteItem | null> {
-    if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase
-        .from('vote_items')
+    if (isSupabaseConfigured) {
+      const client = getSupabaseClient();
+      const { data, error } = await client
+        .from('vote_items' as any)
         .select('*')
         .eq('id', id)
         .single();
@@ -276,9 +278,10 @@ export const voteService = {
   },
 
   async createVoteItem(item: Omit<VoteItem, 'id' | 'votes' | 'createdAt'>): Promise<VoteItem> {
-    if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase
-        .from('vote_items')
+    if (isSupabaseConfigured) {
+      const client = getSupabaseClient();
+      const { data, error } = await client
+        .from('vote_items' as any)
         .insert({
           title: item.title,
           title_en: item.titleEn || null,
@@ -289,7 +292,8 @@ export const voteService = {
           is_active: item.isActive,
           start_date: item.startDate || null,
           end_date: item.endDate || null,
-        })
+          votes: 0 // Explicitly set initial votes
+        } as any)
         .select()
         .single();
 
@@ -315,7 +319,8 @@ export const voteService = {
   },
 
   async updateVoteItem(id: string, updates: Partial<VoteItem>): Promise<VoteItem | null> {
-    if (isSupabaseConfigured && supabase) {
+    if (isSupabaseConfigured) {
+      const client = getSupabaseClient();
       const updateData: any = {
         updated_at: new Date().toISOString(),
       };
@@ -331,9 +336,9 @@ export const voteService = {
       if (updates.startDate !== undefined) updateData.start_date = updates.startDate;
       if (updates.endDate !== undefined) updateData.end_date = updates.endDate;
 
-      const { data, error } = await supabase
-        .from('vote_items')
-        .update(updateData)
+      const { data, error } = await client
+        .from('vote_items' as any)
+        .update(updateData as any)
         .eq('id', id)
         .select()
         .single();
@@ -361,8 +366,9 @@ export const voteService = {
   },
 
   async deleteVoteItem(id: string): Promise<boolean> {
-    if (isSupabaseConfigured && supabase) {
-      const { error } = await supabase.from('vote_items').delete().eq('id', id);
+    if (isSupabaseConfigured) {
+      const client = getSupabaseClient();
+      const { error } = await client.from('vote_items' as any).delete().eq('id', id);
 
       if (error) {
         console.error('Supabase error:', error);
@@ -393,9 +399,10 @@ export const voteService = {
   async hasUserVoted(voteItemId: string): Promise<boolean> {
     const userIdentifier = getUserIdentifier();
 
-    if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase
-        .from('user_votes')
+    if (isSupabaseConfigured) {
+      const client = getSupabaseClient();
+      const { data, error } = await client
+        .from('user_votes' as any)
         .select('id')
         .eq('vote_item_id', voteItemId)
         .eq('user_identifier', userIdentifier)
@@ -417,9 +424,10 @@ export const voteService = {
   async getUserVotedItemIds(): Promise<string[]> {
     const userIdentifier = getUserIdentifier();
 
-    if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase
-        .from('user_votes')
+    if (isSupabaseConfigured) {
+      const client = getSupabaseClient();
+      const { data, error } = await client
+        .from('user_votes' as any)
         .select('vote_item_id')
         .eq('user_identifier', userIdentifier);
 
@@ -445,46 +453,47 @@ export const voteService = {
       return { success: false, newVoteCount: item?.votes || 0 };
     }
 
-    if (isSupabaseConfigured && supabase) {
+    if (isSupabaseConfigured) {
+      const client = getSupabaseClient();
       // Transaction Supabase: incrémenter le vote + enregistrer le vote utilisateur
       // 1. Incrémenter le compteur de votes
-      const { data: itemData, error: fetchError } = await supabase
-        .from('vote_items')
+      const { data: itemData, error: fetchError } = await client
+        .from('vote_items' as any)
         .select('votes')
         .eq('id', voteItemId)
         .single();
 
-      if (fetchError) {
+      if (fetchError || !itemData) {
         console.error('Supabase error:', fetchError);
         return { success: false, newVoteCount: 0 };
       }
 
-      const newVoteCount = (itemData?.votes || 0) + 1;
+      const newVoteCount = (itemData.votes || 0) + 1;
 
-      const { error: updateError } = await supabase
-        .from('vote_items')
-        .update({ votes: newVoteCount, updated_at: new Date().toISOString() })
+      const { error: updateError } = await client
+        .from('vote_items' as any)
+        .update({ votes: newVoteCount, updated_at: new Date().toISOString() } as any)
         .eq('id', voteItemId);
 
       if (updateError) {
         console.error('Supabase error:', updateError);
-        return { success: false, newVoteCount: itemData?.votes || 0 };
+        return { success: false, newVoteCount: itemData.votes || 0 };
       }
 
       // 2. Enregistrer le vote de l'utilisateur
-      const { error: voteError } = await supabase
-        .from('user_votes')
+      const { error: voteError } = await client
+        .from('user_votes' as any)
         .insert({
           vote_item_id: voteItemId,
           user_identifier: userIdentifier,
-        });
+        } as any);
 
       if (voteError) {
         console.error('Supabase error:', voteError);
         // Rollback le vote si l'enregistrement échoue
-        await supabase
-          .from('vote_items')
-          .update({ votes: newVoteCount - 1 })
+        await client
+          .from('vote_items' as any)
+          .update({ votes: newVoteCount - 1 } as any)
           .eq('id', voteItemId);
         return { success: false, newVoteCount: newVoteCount - 1 };
       }
@@ -512,9 +521,10 @@ export const voteService = {
   // --- COMING ITEMS ---
 
   async getComingItems(): Promise<ComingItem[]> {
-    if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase
-        .from('coming_items')
+    if (isSupabaseConfigured) {
+      const client = getSupabaseClient();
+      const { data, error } = await client
+        .from('coming_items' as any)
         .select('*')
         .order('release_date', { ascending: true });
 
@@ -530,9 +540,10 @@ export const voteService = {
   },
 
   async createComingItem(item: Omit<ComingItem, 'id' | 'createdAt'>): Promise<ComingItem> {
-    if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase
-        .from('coming_items')
+    if (isSupabaseConfigured) {
+      const client = getSupabaseClient();
+      const { data, error } = await client
+        .from('coming_items' as any)
         .insert({
           title: item.title,
           title_en: item.titleEn || null,
@@ -540,7 +551,7 @@ export const voteService = {
           description_en: item.descriptionEn || null,
           image: item.image,
           release_date: item.releaseDate,
-        })
+        } as any)
         .select()
         .single();
 
@@ -565,7 +576,8 @@ export const voteService = {
   },
 
   async updateComingItem(id: string, updates: Partial<ComingItem>): Promise<ComingItem | null> {
-    if (isSupabaseConfigured && supabase) {
+    if (isSupabaseConfigured) {
+      const client = getSupabaseClient();
       const updateData: any = {};
       if (updates.title !== undefined) updateData.title = updates.title;
       if (updates.titleEn !== undefined) updateData.title_en = updates.titleEn;
@@ -574,9 +586,9 @@ export const voteService = {
       if (updates.image !== undefined) updateData.image = updates.image;
       if (updates.releaseDate !== undefined) updateData.release_date = updates.releaseDate;
 
-      const { data, error } = await supabase
-        .from('coming_items')
-        .update(updateData)
+      const { data, error } = await client
+        .from('coming_items' as any)
+        .update(updateData as any)
         .eq('id', id)
         .select()
         .single();
@@ -600,8 +612,9 @@ export const voteService = {
   },
 
   async deleteComingItem(id: string): Promise<boolean> {
-    if (isSupabaseConfigured && supabase) {
-      const { error } = await supabase.from('coming_items').delete().eq('id', id);
+    if (isSupabaseConfigured) {
+      const client = getSupabaseClient();
+      const { error } = await client.from('coming_items' as any).delete().eq('id', id);
 
       if (error) {
         console.error('Supabase error:', error);
@@ -657,15 +670,16 @@ export const voteService = {
   // --- RESET ---
 
   async resetToDefaults(): Promise<void> {
-    if (isSupabaseConfigured && supabase) {
+    if (isSupabaseConfigured) {
+      const client = getSupabaseClient();
       // Supprimer toutes les données et réinsérer les défauts
-      await supabase.from('user_votes').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-      await supabase.from('vote_items').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-      await supabase.from('coming_items').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      await client.from('user_votes' as any).delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      await client.from('vote_items' as any).delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      await client.from('coming_items' as any).delete().neq('id', '00000000-0000-0000-0000-000000000000');
 
       // Insérer les données par défaut
       for (const item of DEFAULT_VOTE_ITEMS) {
-        await supabase.from('vote_items').insert({
+        await client.from('vote_items' as any).insert({
           title: item.title,
           title_en: item.titleEn || null,
           description: item.description,
@@ -674,18 +688,18 @@ export const voteService = {
           category: item.category,
           votes: item.votes,
           is_active: item.isActive,
-        });
+        } as any);
       }
 
       for (const item of DEFAULT_COMING_ITEMS) {
-        await supabase.from('coming_items').insert({
+        await client.from('coming_items' as any).insert({
           title: item.title,
           title_en: item.titleEn || null,
           description: item.description,
           description_en: item.descriptionEn || null,
           image: item.image,
           release_date: item.releaseDate,
-        });
+        } as any);
       }
 
       // Nettoyer le localStorage local

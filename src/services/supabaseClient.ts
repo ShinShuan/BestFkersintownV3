@@ -75,23 +75,34 @@ export interface Database {
 }
 
 // Variables d'environnement Supabase
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = (import.meta as any).env.VITE_SUPABASE_URL;
+const supabaseAnonKey = (import.meta as any).env.VITE_SUPABASE_ANON_KEY;
 
 // Vérifier si Supabase est configuré
 export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey);
 
 // Créer le client Supabase (ou null si non configuré)
-let supabase: SupabaseClient<Database> | null = null;
+export const supabase = (isSupabaseConfigured && supabaseUrl && supabaseAnonKey)
+  ? createClient<Database>(supabaseUrl, supabaseAnonKey)
+  : null;
 
-if (isSupabaseConfigured) {
-  supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+if (supabase) {
   console.log('✅ Supabase configuré et connecté');
 } else {
   console.log('⚠️ Supabase non configuré - utilisation du localStorage');
 }
 
-export { supabase };
+/**
+ * Retourne le client Supabase ou lance une erreur s'il n'est pas configuré.
+ * Utilisé pour garantir un typage strict dans les services.
+ */
+export function getSupabaseClient(): SupabaseClient<Database> {
+  if (!supabase) {
+    throw new Error('Supabase client is not initialized. Check your environment variables.');
+  }
+  return supabase;
+}
+
 
 // Helper pour générer un identifiant utilisateur unique
 export function getUserIdentifier(): string {
