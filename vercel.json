@@ -5,6 +5,10 @@
   "framework": "vite",
   "rewrites": [
     {
+      "source": "/api/bigcommerce/:path*",
+      "destination": "/api/bigcommerce-proxy"
+    },
+    {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
