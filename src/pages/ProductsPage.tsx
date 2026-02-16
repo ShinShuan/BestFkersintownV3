@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { 
-  Filter, 
-  Grid, 
-  List, 
-  Search, 
-  ShoppingCart, 
+import {
+  Filter,
+  Grid,
+  List,
+  Search,
+  ShoppingCart,
   Heart,
   RefreshCw,
   AlertCircle
@@ -414,7 +414,7 @@ const SyncButton = styled.button`
   }
 `;
 
-const SyncIcon = styled(RefreshCw)<{ $isSpinning: boolean }>`
+const SyncIcon = styled(RefreshCw) <{ $isSpinning: boolean }>`
   animation: ${props => props.$isSpinning ? 'spin 1s linear infinite' : 'none'};
   
   @keyframes spin {
@@ -475,12 +475,12 @@ const ProductsPage: React.FC = () => {
   const { showNotification } = useNotification();
   const navigate = useNavigate();
   const { triggerUpsell, closeUpsell, showUpsellModal } = useUpsell();
-  
+
   const [products, setProducts] = useState<NormalizedProduct[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<NormalizedProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // États pour les filtres
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
@@ -511,17 +511,18 @@ const ProductsPage: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await productService.getAllProducts();
       setProducts(response.products);
       setFilteredProducts(response.products);
-      
+
       console.log(`✅ ${response.products.length} produits chargés`);
-    } catch (err) {
+    } catch (err: any) {
       console.error('❌ Erreur lors du chargement des produits:', err);
-      setError(language === 'fr' 
-        ? 'Erreur lors du chargement des produits' 
-        : 'Error loading products'
+      const detailedError = err.response?.data?.message || err.response?.data?.error || err.message;
+      setError(language === 'fr'
+        ? `Erreur lors du chargement: ${detailedError}`
+        : `Error loading: ${detailedError}`
       );
     } finally {
       setLoading(false);
@@ -539,7 +540,13 @@ const ProductsPage: React.FC = () => {
 
     // Filtre par catégorie
     if (selectedCategory !== 'all') {
-      filtered = filtered.filter(product => product.productType === selectedCategory);
+      // Les produits BigCommerce ont des IDs de catégories, pas des noms
+      // Pour l'instant, on fait un mapping simple ou on cherche si le nom est contenu dans la catégorie (si c'est une string)
+      filtered = filtered.filter(product => {
+        const prodCat = (product.category || '').toLowerCase();
+        const selCat = selectedCategory.toLowerCase();
+        return prodCat.includes(selCat) || prodCat === selCat;
+      });
     }
 
     // Filtre par prix
@@ -559,7 +566,7 @@ const ProductsPage: React.FC = () => {
     filtered.sort((a, b) => {
       const priceA = parseFloat(a.variants[0]?.price || '0');
       const priceB = parseFloat(b.variants[0]?.price || '0');
-      
+
       switch (sortBy) {
         case 'price-asc':
           return priceA - priceB;
@@ -605,7 +612,7 @@ const ProductsPage: React.FC = () => {
 
       // Declencher l'upsell si c'est un t-shirt
       if (product.productType?.toLowerCase().includes('tshirt') ||
-          product.title.toLowerCase().includes('t-shirt')) {
+        product.title.toLowerCase().includes('t-shirt')) {
         triggerUpsell({
           type: 'add_to_cart',
           productId: product.id,
@@ -731,7 +738,7 @@ const ProductsPage: React.FC = () => {
             {language === 'fr' ? 'Nos Produits' : 'Our Products'}
           </PageTitle>
           <PageSubtitle>
-            {language === 'fr' 
+            {language === 'fr'
               ? 'Découvrez notre collection exclusive de produits de qualité'
               : 'Discover our exclusive collection of quality products'
             }
@@ -852,7 +859,7 @@ const ProductsPage: React.FC = () => {
 
         {/* Informations sur les résultats */}
         <ResultsInfo>
-          {language === 'fr' 
+          {language === 'fr'
             ? `${filteredProducts.length} produit(s) trouvé(s)`
             : `${filteredProducts.length} product(s) found`
           }
@@ -874,54 +881,54 @@ const ProductsPage: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                                 <ProductImageContainer>
-                   <ProductImage 
-                     src={product.images[0]?.src || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop'} 
-                     alt={product.title}
-                     onError={(e) => {
-                       console.log('❌ Erreur de chargement image:', product.title, product.images[0]?.src);
-                       const target = e.target as HTMLImageElement;
-                       target.src = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop';
-                     }}
-                     onLoad={() => {
-                       console.log('✅ Image chargée:', product.title, product.images[0]?.src);
-                     }}
-                   />
-                   
-                   <ProductOverlay>
-                     <ActionButton
-                       onClick={() => handleAddToCart(product)}
-                       title={language === 'fr' ? 'Ajouter au panier' : 'Add to cart'}
-                     >
-                       <ShoppingCart size={20} />
-                     </ActionButton>
-                     
-                     <ActionButton
-                       onClick={() => handleToggleFavorite(product)}
-                       title={language === 'fr' ? 'Ajouter aux favoris' : 'Add to favorites'}
-                     >
-                       <Heart 
-                         size={20} 
-                         fill={isFavorite(product.id) ? '#d13296' : 'none'}
-                         color={isFavorite(product.id) ? '#d13296' : 'currentColor'}
-                       />
-                     </ActionButton>
-                   </ProductOverlay>
+                <ProductImageContainer>
+                  <ProductImage
+                    src={product.images[0]?.src || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop'}
+                    alt={product.title}
+                    onError={(e) => {
+                      console.log('❌ Erreur de chargement image:', product.title, product.images[0]?.src);
+                      const target = e.target as HTMLImageElement;
+                      target.src = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop';
+                    }}
+                    onLoad={() => {
+                      console.log('✅ Image chargée:', product.title, product.images[0]?.src);
+                    }}
+                  />
 
-                   {!product.variants[0]?.available && (
-                     <OutOfStockBadge>
-                       {language === 'fr' ? 'Rupture de stock' : 'Out of stock'}
-                     </OutOfStockBadge>
-                   )}
-                 </ProductImageContainer>
+                  <ProductOverlay>
+                    <ActionButton
+                      onClick={() => handleAddToCart(product)}
+                      title={language === 'fr' ? 'Ajouter au panier' : 'Add to cart'}
+                    >
+                      <ShoppingCart size={20} />
+                    </ActionButton>
 
-                 <ProductContent>
-                   <ProductCategory>{product.productType}</ProductCategory>
-                   <ProductTitleLink to={`/product/${product.id.split('/').pop()}`}>
-                     <ProductTitle>{product.title}</ProductTitle>
-                   </ProductTitleLink>
-                   <ProductPrice>{formatPrice(product.variants[0]?.price || '0')}</ProductPrice>
-                 </ProductContent>
+                    <ActionButton
+                      onClick={() => handleToggleFavorite(product)}
+                      title={language === 'fr' ? 'Ajouter aux favoris' : 'Add to favorites'}
+                    >
+                      <Heart
+                        size={20}
+                        fill={isFavorite(product.id) ? '#d13296' : 'none'}
+                        color={isFavorite(product.id) ? '#d13296' : 'currentColor'}
+                      />
+                    </ActionButton>
+                  </ProductOverlay>
+
+                  {!product.variants[0]?.available && (
+                    <OutOfStockBadge>
+                      {language === 'fr' ? 'Rupture de stock' : 'Out of stock'}
+                    </OutOfStockBadge>
+                  )}
+                </ProductImageContainer>
+
+                <ProductContent>
+                  <ProductCategory>{product.productType}</ProductCategory>
+                  <ProductTitleLink to={`/product/${product.id.split('/').pop()}`}>
+                    <ProductTitle>{product.title}</ProductTitle>
+                  </ProductTitleLink>
+                  <ProductPrice>{formatPrice(product.variants[0]?.price || '0')}</ProductPrice>
+                </ProductContent>
               </ProductCard>
             ))}
           </ProductGrid>
@@ -934,7 +941,7 @@ const ProductsPage: React.FC = () => {
               {language === 'fr' ? 'Aucun produit trouvé' : 'No products found'}
             </EmptyTitle>
             <EmptyText>
-              {language === 'fr' 
+              {language === 'fr'
                 ? 'Essayez de modifier vos filtres ou votre recherche'
                 : 'Try adjusting your filters or search terms'
               }
