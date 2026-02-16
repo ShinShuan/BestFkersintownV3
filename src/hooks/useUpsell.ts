@@ -27,11 +27,11 @@ export const useUpsell = () => {
   const hasSeenUpsellRecently = (triggerType: string): boolean => {
     const lastSeen = localStorage.getItem(`upsell_seen_${triggerType}`);
     if (!lastSeen) return false;
-    
+
     const lastSeenDate = new Date(lastSeen);
     const now = new Date();
     const hoursSinceLastSeen = (now.getTime() - lastSeenDate.getTime()) / (1000 * 60 * 60);
-    
+
     // Ne pas montrer l'upsell si vu il y a moins de 2 heures
     return hoursSinceLastSeen < 2;
   };
@@ -58,17 +58,17 @@ export const useUpsell = () => {
           shouldShow = true;
         }
         break;
-      
+
       case 'view_product':
         // Montrer l'upsell après avoir vu un produit pendant 30 secondes
         shouldShow = true;
         break;
-      
+
       case 'cart_page':
         // Montrer l'upsell sur la page panier si il y a des t-shirts
         shouldShow = true;
         break;
-      
+
       case 'checkout':
         // Montrer l'upsell avant le checkout
         shouldShow = true;
@@ -78,12 +78,12 @@ export const useUpsell = () => {
     if (shouldShow) {
       // Vérifier qu'il y a des produits disponibles avant de montrer l'upsell
       try {
-        const { productService } = await import('../services/shopify');
-        const shopifyResponse = await productService.getAllProducts();
-        
-        const availableProducts = shopifyResponse.products?.filter((product: any) => {
-          return product.variants && product.variants.some((variant: any) => 
-            variant.inventory_quantity > 0 || variant.inventory_policy === 'continue'
+        const { productService } = await import('../services/bigcommerce');
+        const response = await productService.getAllProducts();
+
+        const availableProducts = response.products?.filter((product: any) => {
+          return product.variants && product.variants.some((variant: any) =>
+            variant.inventoryQuantity > 0 || variant.available
           );
         });
 
@@ -158,8 +158,8 @@ export const useUpsell = () => {
   // Vérifier si l'utilisateur est éligible pour l'upsell
   const isEligibleForUpsell = (cartItems: any[]): boolean => {
     // L'utilisateur est éligible s'il a des t-shirts dans son panier
-    const hasTshirts = cartItems.some(item => 
-      item.category?.toLowerCase().includes('tshirt') || 
+    const hasTshirts = cartItems.some(item =>
+      item.category?.toLowerCase().includes('tshirt') ||
       item.title?.toLowerCase().includes('t-shirt')
     );
 
@@ -168,8 +168,8 @@ export const useUpsell = () => {
 
   // Calculer les économies potentielles
   const calculatePotentialSavings = (cartItems: any[]): number => {
-    const tshirtCount = cartItems.filter(item => 
-      item.category?.toLowerCase().includes('tshirt') || 
+    const tshirtCount = cartItems.filter(item =>
+      item.category?.toLowerCase().includes('tshirt') ||
       item.title?.toLowerCase().includes('t-shirt')
     ).length;
 
@@ -186,17 +186,17 @@ export const useUpsell = () => {
   // Obtenir des recommandations personnalisées basées sur les vrais produits Shopify
   const getPersonalizedRecommendations = async (cartItems: any[], userPreferences?: any): Promise<any[]> => {
     try {
-      // Importer le service Shopify
-      const { productService } = await import('../services/shopify');
-      const shopifyResponse = await productService.getAllProducts();
-      
-      if (shopifyResponse.products && shopifyResponse.products.length > 0) {
+      // Importer le service BigCommerce
+      const { productService } = await import('../services/bigcommerce');
+      const response = await productService.getAllProducts();
+
+      if (response.products && response.products.length > 0) {
         // Filtrer les produits disponibles (en stock)
-        const availableProducts = shopifyResponse.products
+        const availableProducts = response.products
           .filter((product: any) => {
             // Vérifier si le produit a des variantes en stock
-            return product.variants && product.variants.some((variant: any) => 
-              variant.inventory_quantity > 0 || variant.inventory_policy === 'continue'
+            return product.variants && product.variants.some((variant: any) =>
+              variant.inventoryQuantity > 0 || variant.available
             );
           })
           .slice(0, 3) // Prendre les 3 premiers produits disponibles
@@ -204,7 +204,7 @@ export const useUpsell = () => {
             id: shopifyProduct.id.toString().split('/').pop() || shopifyProduct.id.toString(),
             title: shopifyProduct.title,
             price: parseFloat(shopifyProduct.variants[0]?.price || '0'),
-            originalPrice: shopifyProduct.variants[0]?.compareAtPrice ? 
+            originalPrice: shopifyProduct.variants[0]?.compareAtPrice ?
               parseFloat(shopifyProduct.variants[0].compareAtPrice) : undefined,
             image: shopifyProduct.images[0]?.src || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop',
             category: shopifyProduct.productType || 'tshirt',

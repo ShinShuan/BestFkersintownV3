@@ -1,4 +1,4 @@
-import { productService } from './shopify';
+import { productService } from './bigcommerce';
 import { airtableService } from './airtable';
 
 // Types pour la synchronisation du stock
@@ -64,7 +64,7 @@ export const stockSyncService = {
   async syncProductStock(productId: string, retryCount = 0): Promise<StockUpdate[]> {
     try {
       console.log(`🔄 Synchronisation du stock pour le produit ${productId} (tentative ${retryCount + 1})`);
-      
+
       // Récupérer les informations actuelles du produit depuis Shopify
       const shopifyProduct = await productService.getProductById(productId);
       const updates: StockUpdate[] = [];
@@ -72,10 +72,10 @@ export const stockSyncService = {
       // Traiter chaque variante du produit
       for (const variant of shopifyProduct.variants) {
         const currentStock = variant.inventoryQuantity || 0;
-        
+
         // Vérifier s'il y a eu un changement de stock
         const previousStock = await this.getPreviousStockLevel(productId, variant.id);
-        
+
         if (currentStock !== previousStock) {
           const update: StockUpdate = {
             productId,
@@ -87,16 +87,16 @@ export const stockSyncService = {
           };
 
           updates.push(update);
-          
+
           // Sauvegarder le nouveau niveau de stock
           await this.saveStockLevel(productId, variant.id, currentStock);
-          
+
           // Vérifier les alertes de stock
           await this.checkStockAlerts(productId, variant.id, currentStock);
-          
+
           // Synchroniser avec Airtable si configuré
           await this.syncToAirtable(productId, variant.id, currentStock);
-          
+
           console.log(`📦 Stock mis à jour: ${productId} - ${variant.title}: ${previousStock} → ${currentStock}`);
         }
       }
@@ -110,14 +110,14 @@ export const stockSyncService = {
       return updates;
     } catch (error) {
       console.error(`❌ Erreur lors de la synchronisation du stock pour ${productId}:`, error);
-      
+
       // Retry automatique en cas d'échec
       if (retryCount < SYNC_CONFIG.RETRY_ATTEMPTS) {
         console.log(`🔄 Nouvelle tentative dans ${SYNC_CONFIG.RETRY_DELAY / 1000} secondes...`);
         await new Promise(resolve => setTimeout(resolve, SYNC_CONFIG.RETRY_DELAY));
         return this.syncProductStock(productId, retryCount + 1);
       }
-      
+
       this.syncState.errorCount++;
       throw error;
     }
@@ -133,7 +133,7 @@ export const stockSyncService = {
 
       this.syncState.isRunning = true;
       console.log('🔄 Début de la synchronisation complète du stock');
-      
+
       const allProducts = await productService.getAllProducts();
       this.syncState.totalProducts = allProducts.products.length;
       const allUpdates: StockUpdate[] = [];
@@ -142,9 +142,9 @@ export const stockSyncService = {
       for (let i = 0; i < allProducts.products.length; i += SYNC_CONFIG.BATCH_SIZE) {
         const batch = allProducts.products.slice(i, i + SYNC_CONFIG.BATCH_SIZE);
         this.syncState.currentBatch = Math.floor(i / SYNC_CONFIG.BATCH_SIZE) + 1;
-        
+
         console.log(`📦 Traitement du batch ${this.syncState.currentBatch}/${Math.ceil(allProducts.products.length / SYNC_CONFIG.BATCH_SIZE)}`);
-        
+
         // Traiter chaque produit du batch en parallèle
         const batchPromises = batch.map(async (product: any) => {
           try {
@@ -157,7 +157,7 @@ export const stockSyncService = {
 
         const batchResults = await Promise.all(batchPromises);
         batchResults.forEach(updates => allUpdates.push(...updates));
-        
+
         // Pause entre les batches pour éviter la surcharge
         if (i + SYNC_CONFIG.BATCH_SIZE < allProducts.products.length) {
           await new Promise(resolve => setTimeout(resolve, 1000));
@@ -166,18 +166,18 @@ export const stockSyncService = {
 
       this.syncState.lastSync = new Date();
       this.syncState.isRunning = false;
-      
+
       console.log(`✅ Synchronisation complète terminée: ${allUpdates.length} mises à jour au total`);
-      
+
       // Émettre un événement pour notifier les composants
       window.dispatchEvent(new CustomEvent('stockSyncCompleted', {
-        detail: { 
+        detail: {
           updates: allUpdates,
           timestamp: this.syncState.lastSync,
           errorCount: this.syncState.errorCount
         }
       }));
-      
+
       return allUpdates;
     } catch (error) {
       this.syncState.isRunning = false;
@@ -190,24 +190,24 @@ export const stockSyncService = {
   async syncProductsInfo(): Promise<ProductUpdate[]> {
     try {
       console.log('🔄 Début de la synchronisation des informations produits');
-      
+
       const allProducts = await productService.getAllProducts();
       const updates: ProductUpdate[] = [];
 
       // Comparer avec les données locales stockées
       for (const product of allProducts.products) {
         const localProduct = this.getLocalProduct(product.id);
-        
+
         if (localProduct) {
           const changes: any = {};
-          
+
           // Vérifier les changements
           if (localProduct.title !== product.title) changes.title = product.title;
-          if (localProduct.price !== parseFloat(product.variants[0]?.price || '0')) changes.price = parseFloat(product.variants[0]?.price || '0');
+          if (localProduct.price !== (product.variants[0]?.price || 0)) changes.price = product.variants[0]?.price || 0;
           if (localProduct.description !== product.description) changes.description = product.description;
           if (JSON.stringify(localProduct.images) !== JSON.stringify(product.images.map((img: any) => img.src))) changes.images = product.images.map((img: any) => img.src);
           if (localProduct.available !== (product.variants[0]?.available || false)) changes.available = product.variants[0]?.available || false;
-          
+
           if (Object.keys(changes).length > 0) {
             updates.push({
               productId: product.id,
@@ -217,7 +217,7 @@ export const stockSyncService = {
             console.log(`📝 Produit mis à jour: ${product.title}`, changes);
           }
         }
-        
+
         // Sauvegarder les nouvelles données
         this.saveLocalProduct(product);
       }
@@ -233,9 +233,9 @@ export const stockSyncService = {
   // Synchronisation en temps réel (nouveau)
   async startRealTimeSync(): Promise<void> {
     if (!SYNC_CONFIG.REAL_TIME_SYNC) return;
-    
+
     console.log('🔄 Démarrage de la synchronisation en temps réel');
-    
+
     // Écouter les événements de mise à jour du panier
     window.addEventListener('cartUpdated', async (event: any) => {
       const { productId, variantId } = event.detail;
@@ -267,10 +267,10 @@ export const stockSyncService = {
   async updateStockFromPurchase(productId: string, variantId: string, quantity: number): Promise<StockUpdate> {
     try {
       console.log(`🔄 Mise à jour du stock après achat: ${productId} - ${variantId} - ${quantity}`);
-      
+
       const currentStock = await this.getCurrentStockLevel(productId, variantId);
       const newStockLevel = Math.max(0, currentStock - quantity);
-      
+
       const update: StockUpdate = {
         productId,
         variantId,
@@ -282,15 +282,15 @@ export const stockSyncService = {
 
       // Sauvegarder le nouveau niveau de stock
       await this.saveStockLevel(productId, variantId, newStockLevel);
-      
+
       // Vérifier les alertes de stock
       await this.checkStockAlerts(productId, variantId, newStockLevel);
-      
+
       // Émettre un événement pour la synchronisation en temps réel
       window.dispatchEvent(new CustomEvent('cartUpdated', {
         detail: { productId, variantId, quantity }
       }));
-      
+
       console.log(`✅ Stock mis à jour: ${currentStock} → ${newStockLevel}`);
       return update;
     } catch (error) {
@@ -438,15 +438,15 @@ export const stockSyncService = {
   // Démarrer la synchronisation automatique
   startAutoSync(intervalMinutes: number = SYNC_CONFIG.SYNC_INTERVAL): NodeJS.Timeout {
     console.log(`🔄 Démarrage de la synchronisation automatique toutes les ${intervalMinutes} minutes`);
-    
+
     // Démarrer la synchronisation en temps réel
     this.startRealTimeSync();
-    
+
     // Première synchronisation immédiate seulement si pas déjà en cours
     if (!this.syncState.isRunning) {
       this.syncAllProductsStock();
     }
-    
+
     const interval = setInterval(async () => {
       try {
         // Éviter les synchronisations multiples simultanées
@@ -454,23 +454,23 @@ export const stockSyncService = {
           console.log('⚠️ Synchronisation déjà en cours, ignorée');
           return;
         }
-        
+
         console.log('🔄 Synchronisation automatique en cours...');
-        
+
         // Synchroniser le stock
         await this.syncAllProductsStock();
-        
+
         // Synchroniser les informations des produits
         await this.syncProductsInfo();
-        
+
         // Émettre un événement pour notifier les composants (une seule fois)
         window.dispatchEvent(new CustomEvent('productsUpdated', {
-          detail: { 
+          detail: {
             timestamp: new Date(),
             syncState: this.syncState
           }
         }));
-        
+
       } catch (error) {
         console.error('❌ Erreur lors de la synchronisation automatique:', error);
       }

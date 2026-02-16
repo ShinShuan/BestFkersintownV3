@@ -23,12 +23,39 @@ dist-ssr
 *.sln
 *.sw?
 
-# Environment variables
+# Environment variables & API Keys
 .env
+.env.*
 .env.local
+.env.development
 .env.development.local
+.env.test
 .env.test.local
+.env.production
 .env.production.local
+*.env
+env.js
+env.ts
+
+# API Keys & Credentials
+*credentials*.txt
+*credentials*.json
+*api-key*.txt
+*api-key*.json
+*secret*.txt
+*secret*.json
+*.pem
+*.key
+*.cert
+*.p12
+*.pfx
+.npmrc
+.yarnrc
+
+# Configuration files with sensitive data
+config.local.*
+secrets/
+.secrets/
 
 # Build outputs
 build/

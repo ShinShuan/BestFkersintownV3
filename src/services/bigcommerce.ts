@@ -8,14 +8,18 @@ const STOREFRONT_URL = ENV_CONFIG.BIGCOMMERCE.STOREFRONT_URL;
 // Proxy URL pour eviter les problemes CORS
 // En production sur Vercel, utilise le meme domaine (pas besoin de proxy externe)
 // En developpement local, utilise le serveur proxy sur le port 3001
-const isProduction = import.meta.env.PROD;
+const isProduction = import.meta.env.PROD || import.meta.env.VITE_VERCEL_ENV === 'production' || import.meta.env.VITE_VERCEL_ENV === 'preview';
 const PROXY_URL = isProduction
-  ? '' // En production, les API routes sont sur le meme domaine
-  : (import.meta.env.VITE_PROXY_URL || 'http://localhost:3001');
+  ? '/' // Utiliser le chemin relatif à la racine en production
+  : (import.meta.env.VITE_PROXY_URL || 'http://localhost:3001/');
+
+// S'assurer que PROXY_URL se termine par / si ce n'est pas le cas pour une URL complète, 
+// mais ici on veut qu'il soit soit '/' soit 'http://.../'
+const cleanProxyUrl = PROXY_URL.endsWith('/') ? PROXY_URL.slice(0, -1) : PROXY_URL;
 
 // Instance Axios pour l'API BigCommerce V3 (via proxy)
 export const bigcommerceAPI: AxiosInstance = axios.create({
-  baseURL: `${PROXY_URL}/api/bigcommerce/v3`,
+  baseURL: `${cleanProxyUrl}/api/bigcommerce/v3`,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -24,7 +28,7 @@ export const bigcommerceAPI: AxiosInstance = axios.create({
 
 // Instance pour l'API V2 (certaines fonctionnalités) (via proxy)
 export const bigcommerceAPIv2: AxiosInstance = axios.create({
-  baseURL: `${PROXY_URL}/api/bigcommerce/v2`,
+  baseURL: `${cleanProxyUrl}/api/bigcommerce/v2`,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -322,11 +326,11 @@ export interface NormalizedProduct {
   variants: {
     id: string;
     title: string;
-    price: string;
-    compareAtPrice: string | null;
+    price: number;
+    compareAtPrice: number | null;
     available: boolean;
     inventoryQuantity: number;
-    selectedOptions: Array<{
+    options: Array<{
       name: string;
       value: string;
     }>;
@@ -362,11 +366,11 @@ function normalizeProduct(product: BigCommerceProduct): NormalizedProduct {
     variants: (product.variants || []).map(variant => ({
       id: variant.id.toString(),
       title: variant.option_values?.map(ov => ov.label).join(' / ') || 'Default',
-      price: (variant.calculated_price || variant.price || product.price).toString(),
-      compareAtPrice: variant.retail_price ? variant.retail_price.toString() : null,
+      price: parseFloat((variant.calculated_price || variant.price || product.price).toString()),
+      compareAtPrice: variant.retail_price ? parseFloat(variant.retail_price.toString()) : null,
       available: !variant.purchasing_disabled && variant.inventory_level > 0,
       inventoryQuantity: variant.inventory_level,
-      selectedOptions: (variant.option_values || []).map(ov => ({
+      options: (variant.option_values || []).map(ov => ({
         name: ov.option_display_name,
         value: ov.label
       }))

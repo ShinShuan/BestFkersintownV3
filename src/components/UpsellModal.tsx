@@ -174,7 +174,7 @@ const Stars = styled.div`
   gap: 1px;
 `;
 
-const StarIcon = styled(Star)<{ $filled: boolean }>`
+const StarIcon = styled(Star) <{ $filled: boolean }>`
   color: ${props => props.$filled ? '#FFD700' : 'var(--gray-300)'};
   fill: ${props => props.$filled ? '#FFD700' : 'none'};
   width: 14px;
@@ -309,18 +309,18 @@ const UpsellModal: React.FC<UpsellModalProps> = ({
     const loadUpsellProducts = async () => {
       try {
         setLoading(true);
-        
-        // Importer le service Shopify
-        const { productService } = await import('../services/shopify');
-        const shopifyResponse = await productService.getAllProducts();
-        
-        if (shopifyResponse.products && shopifyResponse.products.length > 0) {
+
+        // Importer le service BigCommerce
+        const { productService } = await import('../services/bigcommerce');
+        const response = await productService.getAllProducts();
+
+        if (response.products && response.products.length > 0) {
           // Filtrer les produits disponibles (en stock) et prendre les 3 premiers
-          const availableProducts = shopifyResponse.products
+          const availableProducts = response.products
             .filter((product: any) => {
               // Vérifier si le produit a des variantes en stock
-              return product.variants && product.variants.some((variant: any) => 
-                variant.inventory_quantity > 0 || variant.inventory_policy === 'continue'
+              return product.variants && product.variants.some((variant: any) =>
+                variant.inventoryQuantity > 0 || variant.available
               );
             })
             .slice(0, 3)
@@ -328,7 +328,7 @@ const UpsellModal: React.FC<UpsellModalProps> = ({
               id: shopifyProduct.id.toString().split('/').pop() || shopifyProduct.id.toString(),
               title: shopifyProduct.title,
               price: parseFloat(shopifyProduct.variants[0]?.price || '0'),
-              originalPrice: shopifyProduct.variants[0]?.compareAtPrice ? 
+              originalPrice: shopifyProduct.variants[0]?.compareAtPrice ?
                 parseFloat(shopifyProduct.variants[0].compareAtPrice) : undefined,
               image: shopifyProduct.images[0]?.src || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop',
               rating: 4.5,
@@ -359,18 +359,18 @@ const UpsellModal: React.FC<UpsellModalProps> = ({
   const handleAddToCart = async (product: UpsellProduct) => {
     try {
       // Vérifier que le produit est toujours disponible en stock
-      const { productService } = await import('../services/shopify');
-      const shopifyResponse = await productService.getAllProducts();
-      
-      const shopifyProduct = shopifyResponse.products?.find((p: any) => 
-        p.id.toString().split('/').pop() === product.id || p.id.toString() === product.id
+      const { productService } = await import('../services/bigcommerce');
+      const response = await productService.getAllProducts();
+
+      const productFound = response.products?.find((p: any) =>
+        p.id.toString() === product.id
       );
 
-      if (!shopifyProduct) {
+      if (!productFound) {
         showNotification({
           type: 'error',
           title: language === 'fr' ? 'Produit non disponible' : 'Product not available',
-          message: language === 'fr' 
+          message: language === 'fr'
             ? 'Ce produit n\'est plus disponible'
             : 'This product is no longer available'
         });
@@ -378,31 +378,31 @@ const UpsellModal: React.FC<UpsellModalProps> = ({
       }
 
       // Vérifier le stock
-      const hasStock = shopifyProduct.variants && shopifyProduct.variants.some((variant: any) => 
-        variant.inventory_quantity > 0 || variant.inventory_policy === 'continue'
+      const hasStock = productFound.variants && productFound.variants.some((variant: any) =>
+        variant.inventoryQuantity > 0 || variant.available
       );
 
       if (!hasStock) {
         showNotification({
           type: 'error',
           title: language === 'fr' ? 'Rupture de stock' : 'Out of stock',
-          message: language === 'fr' 
+          message: language === 'fr'
             ? 'Ce produit est en rupture de stock'
             : 'This product is out of stock'
         });
         return;
       }
 
-      // Ajouter au panier avec les vraies données Shopify
+      // Ajouter au panier avec les vraies données
       addToCart({
         id: product.id,
         title: product.title,
-        description: shopifyProduct.body_html || '',
+        description: productFound.description || '',
         price: product.price,
         images: [product.image],
-        category: shopifyProduct.productType || product.category,
-        tags: shopifyProduct.tags || [],
-        variants: shopifyProduct.variants || [],
+        category: productFound.productType || product.category,
+        tags: productFound.tags || [],
+        variants: productFound.variants || [],
         available: hasStock,
         featured: false,
         rating: product.rating,
@@ -416,7 +416,7 @@ const UpsellModal: React.FC<UpsellModalProps> = ({
       showNotification({
         type: 'success',
         title: language === 'fr' ? 'Ajouté au panier' : 'Added to cart',
-        message: language === 'fr' 
+        message: language === 'fr'
           ? `${product.title} a été ajouté au panier`
           : `${product.title} has been added to cart`
       });
@@ -425,7 +425,7 @@ const UpsellModal: React.FC<UpsellModalProps> = ({
       showNotification({
         type: 'error',
         title: language === 'fr' ? 'Erreur' : 'Error',
-        message: language === 'fr' 
+        message: language === 'fr'
           ? 'Erreur lors de l\'ajout au panier'
           : 'Error adding to cart'
       });
@@ -435,32 +435,32 @@ const UpsellModal: React.FC<UpsellModalProps> = ({
   const handleBundleAdd = async () => {
     try {
       // Vérifier que tous les produits sont toujours disponibles
-      const { productService } = await import('../services/shopify');
-      const shopifyResponse = await productService.getAllProducts();
-      
+      const { productService } = await import('../services/bigcommerce');
+      const response = await productService.getAllProducts();
+
       let addedCount = 0;
-      
+
       for (const product of upsellProducts) {
-        const shopifyProduct = shopifyResponse.products?.find((p: any) => 
-          p.id.toString().split('/').pop() === product.id || p.id.toString() === product.id
+        const productSyncFound = response.products?.find((p: any) =>
+          p.id.toString() === product.id
         );
 
-        if (shopifyProduct) {
+        if (productSyncFound) {
           // Vérifier le stock
-          const hasStock = shopifyProduct.variants && shopifyProduct.variants.some((variant: any) => 
-            variant.inventory_quantity > 0 || variant.inventory_policy === 'continue'
+          const hasStock = productSyncFound.variants && productSyncFound.variants.some((variant: any) =>
+            variant.inventoryQuantity > 0 || variant.available
           );
 
           if (hasStock) {
             addToCart({
               id: product.id,
               title: product.title,
-              description: shopifyProduct.body_html || '',
+              description: productSyncFound.description || '',
               price: product.price,
               images: [product.image],
-              category: shopifyProduct.productType || product.category,
-              tags: shopifyProduct.tags || [],
-              variants: shopifyProduct.variants || [],
+              category: productSyncFound.productType || product.category,
+              tags: productSyncFound.tags || [],
+              variants: productSyncFound.variants || [],
               available: hasStock,
               featured: false,
               rating: product.rating,
@@ -479,7 +479,7 @@ const UpsellModal: React.FC<UpsellModalProps> = ({
         showNotification({
           type: 'success',
           title: language === 'fr' ? 'Produits ajoutés au panier' : 'Products added to cart',
-          message: language === 'fr' 
+          message: language === 'fr'
             ? `${addedCount} produit(s) ajouté(s) au panier`
             : `${addedCount} product(s) added to cart`
         });
@@ -487,7 +487,7 @@ const UpsellModal: React.FC<UpsellModalProps> = ({
         showNotification({
           type: 'error',
           title: language === 'fr' ? 'Aucun produit disponible' : 'No products available',
-          message: language === 'fr' 
+          message: language === 'fr'
             ? 'Aucun produit du lot n\'est actuellement disponible'
             : 'No products from the bundle are currently available'
         });
@@ -499,7 +499,7 @@ const UpsellModal: React.FC<UpsellModalProps> = ({
       showNotification({
         type: 'error',
         title: language === 'fr' ? 'Erreur' : 'Error',
-        message: language === 'fr' 
+        message: language === 'fr'
           ? 'Erreur lors de l\'ajout du lot'
           : 'Error adding bundle'
       });
@@ -540,8 +540,8 @@ const UpsellModal: React.FC<UpsellModalProps> = ({
 
             <ModalHeader>
               <ModalTitle>
-                {language === 'fr' 
-                  ? 'Vous aimeriez aussi...' 
+                {language === 'fr'
+                  ? 'Vous aimeriez aussi...'
                   : 'You might also like...'
                 }
               </ModalTitle>
@@ -556,8 +556,8 @@ const UpsellModal: React.FC<UpsellModalProps> = ({
 
 
             {loading ? (
-              <div style={{ 
-                padding: 'var(--spacing-6)', 
+              <div style={{
+                padding: 'var(--spacing-6)',
                 textAlign: 'center',
                 color: 'var(--gray-500)'
               }}>
@@ -595,13 +595,13 @@ const UpsellModal: React.FC<UpsellModalProps> = ({
                 ))}
               </ProductGrid>
             ) : (
-              <div style={{ 
-                padding: 'var(--spacing-6)', 
+              <div style={{
+                padding: 'var(--spacing-6)',
                 textAlign: 'center',
                 color: 'var(--gray-500)'
               }}>
-                {language === 'fr' 
-                  ? 'Aucun produit disponible pour le moment' 
+                {language === 'fr'
+                  ? 'Aucun produit disponible pour le moment'
                   : 'No products available at the moment'
                 }
               </div>

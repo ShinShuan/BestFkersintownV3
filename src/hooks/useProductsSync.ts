@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { stockSyncService } from '../services/stock-sync';
-import { productService } from '../services/shopify';
+import { productService } from '../services/bigcommerce';
 
 export interface UseProductsSyncOptions {
   autoSync?: boolean;
@@ -29,26 +29,26 @@ export const useProductsSync = (options: UseProductsSyncOptions = {}) => {
       setIsSyncing(true);
       setSyncError(null);
       console.log('🔄 Synchronisation manuelle des produits...');
-      
+
       const productUpdates = await stockSyncService.syncProductsInfo();
       const stockUpdates = await stockSyncService.syncAllProductsStock();
-      
+
       setLastSync(new Date());
-      
+
       if (onProductsUpdate && productUpdates.length > 0) {
         onProductsUpdate(productUpdates);
       }
       if (onStockUpdate && stockUpdates.length > 0) {
         onStockUpdate(stockUpdates);
       }
-      
+
       // Mettre à jour l'état de synchronisation
       const currentSyncState = stockSyncService.getSyncState();
       setSyncState(currentSyncState);
       if (onSyncStateChange) {
         onSyncStateChange(currentSyncState);
       }
-      
+
       window.dispatchEvent(new CustomEvent('productsUpdated', {
         detail: {
           timestamp: new Date(),
@@ -57,7 +57,7 @@ export const useProductsSync = (options: UseProductsSyncOptions = {}) => {
           syncState: currentSyncState
         }
       }));
-      
+
       console.log('✅ Synchronisation terminée');
     } catch (error) {
       console.error('❌ Erreur lors de la synchronisation:', error);
@@ -72,21 +72,21 @@ export const useProductsSync = (options: UseProductsSyncOptions = {}) => {
       setIsSyncing(true);
       setSyncError(null);
       console.log('🔄 Rafraîchissement des produits...');
-      
+
       const allProducts = await productService.getAllProducts();
       allProducts.products.forEach((product: any) => {
         stockSyncService.saveLocalProduct(product);
       });
-      
+
       setLastSync(new Date());
-      
+
       // Mettre à jour l'état de synchronisation
       const currentSyncState = stockSyncService.getSyncState();
       setSyncState(currentSyncState);
       if (onSyncStateChange) {
         onSyncStateChange(currentSyncState);
       }
-      
+
       window.dispatchEvent(new CustomEvent('productsRefreshed', {
         detail: {
           timestamp: new Date(),
@@ -94,7 +94,7 @@ export const useProductsSync = (options: UseProductsSyncOptions = {}) => {
           syncState: currentSyncState
         }
       }));
-      
+
       console.log('✅ Rafraîchissement terminé');
     } catch (error) {
       console.error('❌ Erreur lors du rafraîchissement:', error);
@@ -109,7 +109,7 @@ export const useProductsSync = (options: UseProductsSyncOptions = {}) => {
     const handleProductsUpdated = (event: CustomEvent) => {
       console.log('📡 Événement de mise à jour des produits reçu:', event.detail);
       setLastSync(new Date());
-      
+
       if (event.detail.syncState) {
         setSyncState(event.detail.syncState);
         if (onSyncStateChange) {
@@ -121,7 +121,7 @@ export const useProductsSync = (options: UseProductsSyncOptions = {}) => {
     const handleProductsRefreshed = (event: CustomEvent) => {
       console.log('📡 Événement de rafraîchissement des produits reçu:', event.detail);
       setLastSync(new Date());
-      
+
       if (event.detail.syncState) {
         setSyncState(event.detail.syncState);
         if (onSyncStateChange) {
@@ -133,7 +133,7 @@ export const useProductsSync = (options: UseProductsSyncOptions = {}) => {
     const handleStockUpdated = (event: CustomEvent) => {
       console.log('📡 Événement de mise à jour du stock reçu:', event.detail);
       setLastSync(new Date());
-      
+
       if (onStockUpdate && event.detail.updates) {
         onStockUpdate(event.detail.updates);
       }
@@ -142,7 +142,7 @@ export const useProductsSync = (options: UseProductsSyncOptions = {}) => {
     const handleStockSyncCompleted = (event: CustomEvent) => {
       console.log('📡 Événement de synchronisation du stock terminée:', event.detail);
       setLastSync(new Date());
-      
+
       if (onStockUpdate && event.detail.updates) {
         onStockUpdate(event.detail.updates);
       }
@@ -166,14 +166,14 @@ export const useProductsSync = (options: UseProductsSyncOptions = {}) => {
   // Synchronisation automatique
   useEffect(() => {
     if (!autoSync) return;
-    
+
     console.log(`🔄 Démarrage de la synchronisation automatique (${syncInterval} min)`);
-    
+
     // Première synchronisation immédiate seulement si pas déjà en cours
     if (!isSyncing) {
       syncProducts();
     }
-    
+
     // Synchronisation périodique
     const intervalId = setInterval(() => {
       // Éviter les synchronisations multiples
