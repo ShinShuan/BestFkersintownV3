@@ -9,17 +9,17 @@ const STOREFRONT_URL = ENV_CONFIG.BIGCOMMERCE.STOREFRONT_URL;
 // En production sur Vercel, utilise le meme domaine (pas besoin de proxy externe)
 // En developpement local, utilise le serveur proxy sur le port 3001
 const isProduction = import.meta.env.PROD || import.meta.env.VITE_VERCEL_ENV === 'production' || import.meta.env.VITE_VERCEL_ENV === 'preview';
-const PROXY_URL = isProduction
-  ? '/' // Utiliser le chemin relatif à la racine en production
-  : (import.meta.env.VITE_PROXY_URL || 'http://localhost:3001/');
 
-// S'assurer que PROXY_URL se termine par / si ce n'est pas le cas pour une URL complète, 
-// mais ici on veut qu'il soit soit '/' soit 'http://.../'
-const cleanProxyUrl = PROXY_URL.endsWith('/') ? PROXY_URL.slice(0, -1) : PROXY_URL;
+// En production, on utilise le chemin relatif. En dev, on utilise le proxy local.
+const PROXY_BASE = isProduction
+  ? ''
+  : (import.meta.env.VITE_PROXY_URL || 'http://localhost:3001').replace(/\/$/, '');
+
+console.log(`[BigCommerce Service] Using PROXY_BASE: ${PROXY_BASE || '(relative path)'}`);
 
 // Instance Axios pour l'API BigCommerce V3 (via proxy)
 export const bigcommerceAPI: AxiosInstance = axios.create({
-  baseURL: `${cleanProxyUrl}/api/bigcommerce/v3`,
+  baseURL: `${PROXY_BASE}/api/bigcommerce/v3`,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',

@@ -33,6 +33,7 @@ export default async function handler(req, res) {
   }
 
   if (!BC_STORE_HASH || !BC_ACCESS_TOKEN) {
+    console.error('[Proxy] Missing BigCommerce credentials:', { hash: !!BC_STORE_HASH, token: !!BC_ACCESS_TOKEN });
     return res.status(500).json({
       error: 'BigCommerce credentials not configured',
       message: 'Please set VITE_BIGCOMMERCE_STORE_HASH and VITE_BIGCOMMERCE_ACCESS_TOKEN in Vercel settings',
@@ -79,30 +80,36 @@ export default async function handler(req, res) {
 
     const response = await fetch(finalUrl, fetchOptions);
 
-    console.log(`[Proxy] BigCommerce responded with status: ${response.status}`);
+    console.log(`[Proxy] BigCommerce responded with status: ${response.status} for ${finalUrl}`);
 
     const contentType = response.headers.get('content-type');
     let responseData;
 
-    if (contentType && contentType.includes('application/json')) {
-      responseData = await response.json();
-    } else {
-      responseData = await response.text();
+    try {
+      if (contentType && contentType.includes('application/json')) {
+        responseData = await response.json();
+      } else {
+        responseData = await response.text();
+      }
+    } catch (e) {
+      console.error('[Proxy] Error parsing BigCommerce response:', e);
+      responseData = { error: 'Failed to parse BigCommerce response', details: e.message };
     }
 
     // Log the error body if not successful
     if (!response.ok) {
-      console.error(`[Proxy] BigCommerce Error Data:`, JSON.stringify(responseData));
+      console.error(`[Proxy] BigCommerce Error (${response.status}):`, JSON.stringify(responseData));
     }
 
     // Transférer le status code de BigCommerce
     res.status(response.status).json(responseData);
   } catch (error) {
-    console.error('[Proxy] Critical Error:', error);
+    console.error('[Proxy] Critical Error encountered during fetch:', error);
     res.status(500).json({
       error: 'Failed to fetch from BigCommerce API',
       message: error.message,
-      type: 'PROXY_ERROR'
+      type: 'PROXY_ERROR',
+      targetUrl: finalUrl
     });
   }
 }
