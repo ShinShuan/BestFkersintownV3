@@ -75,8 +75,10 @@ export interface Database {
 }
 
 // Variables d'environnement Supabase
-const supabaseUrl = (import.meta as any).env.VITE_SUPABASE_URL;
-const supabaseAnonKey = (import.meta as any).env.VITE_SUPABASE_ANON_KEY;
+// @ts-ignore
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+// @ts-ignore
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Vérifier si Supabase est configuré
 export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey);
