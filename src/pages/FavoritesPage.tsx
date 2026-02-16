@@ -263,9 +263,9 @@ const FavoritesPage: React.FC = () => {
       showNotification({
         type: 'warning',
         title: language === 'fr' ? 'Connexion requise' : 'Sign in required',
-        message: language === 'fr' 
-          ? 'Connectez-vous à votre compte Shopify pour voir vos favoris' 
-          : 'Sign in to your Shopify account to view your favorites'
+        message: language === 'fr'
+          ? 'Connectez-vous à votre compte pour voir vos favoris'
+          : 'Sign in to your account to view your favorites'
       });
     }
   }, [isAuthenticated, language, showNotification]);
@@ -276,16 +276,16 @@ const FavoritesPage: React.FC = () => {
       showNotification({
         type: 'success',
         title: 'Succès',
-        message: language === 'fr' 
-          ? 'Produit retiré des favoris' 
+        message: language === 'fr'
+          ? 'Produit retiré des favoris'
           : 'Product removed from favorites'
       });
     } catch (error) {
       showNotification({
         type: 'error',
         title: 'Erreur',
-        message: language === 'fr' 
-          ? 'Erreur lors de la suppression' 
+        message: language === 'fr'
+          ? 'Erreur lors de la suppression'
           : 'Error removing favorite'
       });
     }
@@ -313,16 +313,16 @@ const FavoritesPage: React.FC = () => {
     showNotification({
       type: 'success',
       title: 'Succès',
-      message: language === 'fr' 
-        ? 'Produit ajouté au panier' 
+      message: language === 'fr'
+        ? 'Produit ajouté au panier'
         : 'Product added to cart'
     });
   };
 
   const handleClearAll = async () => {
     if (window.confirm(
-      language === 'fr' 
-        ? 'Êtes-vous sûr de vouloir supprimer tous vos favoris ?' 
+      language === 'fr'
+        ? 'Êtes-vous sûr de vouloir supprimer tous vos favoris ?'
         : 'Are you sure you want to remove all favorites?'
     )) {
       try {
@@ -330,18 +330,18 @@ const FavoritesPage: React.FC = () => {
         showNotification({
           type: 'success',
           title: 'Succès',
-          message: language === 'fr' 
-            ? 'Tous les favoris ont été supprimés' 
+          message: language === 'fr'
+            ? 'Tous les favoris ont été supprimés'
             : 'All favorites have been removed'
         });
       } catch (error) {
-                  showNotification({
-            type: 'error',
-            title: 'Erreur',
-            message: language === 'fr' 
-              ? 'Erreur lors de la suppression' 
-              : 'Error removing favorites'
-          });
+        showNotification({
+          type: 'error',
+          title: 'Erreur',
+          message: language === 'fr'
+            ? 'Erreur lors de la suppression'
+            : 'Error removing favorites'
+        });
       }
     }
   };
@@ -370,7 +370,7 @@ const FavoritesPage: React.FC = () => {
             {language === 'fr' ? 'Connectez-vous' : 'Sign in'}
           </EmptyTitle>
           <EmptyDescription>
-            {language === 'fr' 
+            {language === 'fr'
               ? 'Connectez-vous pour voir et gérer vos produits favoris'
               : 'Sign in to view and manage your favorite products'
             }
@@ -393,7 +393,7 @@ const FavoritesPage: React.FC = () => {
             {favorites.length > 0 && ` (${favorites.length})`}
           </PageTitle>
         </HeaderLeft>
-        
+
         {favorites.length > 0 && (
           <HeaderActions>
             <ActionButton onClick={handleClearAll}>
@@ -416,7 +416,7 @@ const FavoritesPage: React.FC = () => {
             {language === 'fr' ? 'Aucun favori' : 'No favorites'}
           </EmptyTitle>
           <EmptyDescription>
-            {language === 'fr' 
+            {language === 'fr'
               ? 'Vous n\'avez pas encore ajouté de produits à vos favoris. Parcourez notre catalogue pour découvrir des produits incroyables !'
               : 'You haven\'t added any products to your favorites yet. Browse our catalog to discover amazing products!'
             }
@@ -444,11 +444,11 @@ const FavoritesPage: React.FC = () => {
                   </CardButton>
                 </CardOverlay>
               </CardImage>
-              
+
               <CardContent>
                 <CardTitle>{favorite.productTitle}</CardTitle>
                 <CardPrice>Prix à récupérer</CardPrice>
-                
+
                 <CardActions>
                   <CardActionButton
                     onClick={() => handleAddToCart(favorite.productId, favorite.productTitle)}

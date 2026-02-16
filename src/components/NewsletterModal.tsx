@@ -196,12 +196,12 @@ const NewsletterModal: React.FC<NewsletterModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email || !email.includes('@')) {
       showNotification({
         type: 'error',
         title: language === 'fr' ? 'Email invalide' : 'Invalid email',
-        message: language === 'fr' 
+        message: language === 'fr'
           ? 'Veuillez entrer une adresse email valide'
           : 'Please enter a valid email address'
       });
@@ -209,11 +209,11 @@ const NewsletterModal: React.FC<NewsletterModalProps> = ({
     }
 
     setIsSubmitting(true);
-    
+
     try {
-      // Inscrire à la newsletter via Shopify
+      // Inscrire à la newsletter
       const result = await newsletterService.subscribeToNewsletter(email);
-      
+
       if (result.success) {
         setIsSubmitted(true);
         showNotification({
@@ -221,7 +221,7 @@ const NewsletterModal: React.FC<NewsletterModalProps> = ({
           title: language === 'fr' ? 'Inscription réussie !' : 'Successfully subscribed!',
           message: result.message
         });
-        
+
         // Fermer le modal après 3 secondes
         setTimeout(() => {
           onClose();
@@ -241,7 +241,7 @@ const NewsletterModal: React.FC<NewsletterModalProps> = ({
       showNotification({
         type: 'error',
         title: language === 'fr' ? 'Erreur' : 'Error',
-        message: language === 'fr' 
+        message: language === 'fr'
           ? 'Une erreur est survenue lors de l\'inscription'
           : 'An error occurred during subscription'
       });
@@ -284,7 +284,7 @@ const NewsletterModal: React.FC<NewsletterModalProps> = ({
                 <span style={{ fontSize: 'var(--font-size-lg)' }}>🎉</span>
               </ModalTitle>
               <ModalSubtitle>
-                {language === 'fr' 
+                {language === 'fr'
                   ? 'Inscrivez-vous à notre newsletter et obtenez 10% de réduction sur votre première commande !'
                   : 'Sign up for our newsletter and get 10% off your first order!'
                 }
@@ -330,50 +330,50 @@ const NewsletterModal: React.FC<NewsletterModalProps> = ({
                   />
                   <SubscribeButton type="submit" disabled={isSubmitting}>
                     <Mail size={20} />
-                    {isSubmitting 
+                    {isSubmitting
                       ? (language === 'fr' ? 'Inscription...' : 'Signing up...')
                       : (language === 'fr' ? 'S\'inscrire' : 'Sign up')
                     }
                     {!isSubmitting && <ArrowRight size={20} />}
                   </SubscribeButton>
                 </EmailForm>
-                             ) : (
-                 <div style={{ 
-                   textAlign: 'center', 
-                   padding: 'var(--spacing-6)',
-                   color: '#10b981',
-                   fontSize: 'var(--font-size-lg)',
-                   fontWeight: 'var(--font-bold)'
-                 }}>
-                   <div style={{ marginBottom: 'var(--spacing-4)' }}>
-                     {language === 'fr' 
-                       ? 'Merci ! Votre code de réduction vous a été envoyé par email.'
-                       : 'Thank you! Your discount code has been sent to your email.'
-                     }
-                   </div>
-                   <div style={{ 
-                     background: '#f8f9fa', 
-                     padding: 'var(--spacing-4)', 
-                     borderRadius: 'var(--radius-lg)',
-                     border: '2px dashed #10b981'
-                   }}>
-                     <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--gray-600)', marginBottom: 'var(--spacing-2)' }}>
-                       {language === 'fr' ? 'Code de réduction :' : 'Discount code:'}
-                     </div>
-                     <div style={{ 
-                       fontSize: 'var(--font-size-xl)', 
-                       fontWeight: 'var(--font-bold)', 
-                       color: '#d13296',
-                       letterSpacing: '2px'
-                     }}>
-                       {discountCode || 'NEWSLETTER10'}
-                     </div>
-                   </div>
-                 </div>
-               )}
+              ) : (
+                <div style={{
+                  textAlign: 'center',
+                  padding: 'var(--spacing-6)',
+                  color: '#10b981',
+                  fontSize: 'var(--font-size-lg)',
+                  fontWeight: 'var(--font-bold)'
+                }}>
+                  <div style={{ marginBottom: 'var(--spacing-4)' }}>
+                    {language === 'fr'
+                      ? 'Merci ! Votre code de réduction vous a été envoyé par email.'
+                      : 'Thank you! Your discount code has been sent to your email.'
+                    }
+                  </div>
+                  <div style={{
+                    background: '#f8f9fa',
+                    padding: 'var(--spacing-4)',
+                    borderRadius: 'var(--radius-lg)',
+                    border: '2px dashed #10b981'
+                  }}>
+                    <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--gray-600)', marginBottom: 'var(--spacing-2)' }}>
+                      {language === 'fr' ? 'Code de réduction :' : 'Discount code:'}
+                    </div>
+                    <div style={{
+                      fontSize: 'var(--font-size-xl)',
+                      fontWeight: 'var(--font-bold)',
+                      color: '#d13296',
+                      letterSpacing: '2px'
+                    }}>
+                      {discountCode || 'NEWSLETTER10'}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <FooterText>
-                {language === 'fr' 
+                {language === 'fr'
                   ? 'En vous inscrivant, vous acceptez de recevoir nos emails marketing. Vous pouvez vous désinscrire à tout moment.'
                   : 'By signing up, you agree to receive our marketing emails. You can unsubscribe at any time.'
                 }

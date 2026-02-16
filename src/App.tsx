@@ -23,21 +23,7 @@ import AboutPage from './pages/AboutPage';
 import CommitmentsPage from './pages/CommitmentsPage';
 import VotePage from './pages/VotePage';
 import FavoritesPage from './pages/FavoritesPage';
-import ShopifyCheckoutPage from './pages/ShopifyCheckoutPage';
 import CGVPage from './pages/CGVPage';
-import CheckoutTest from './components/CheckoutTest';
-// import IntegrationTest from './components/IntegrationTest';
-import SimpleCheckout from './components/SimpleCheckout';
-import Diagnostic from './components/Diagnostic';
-import QuickCheckout from './components/QuickCheckout';
-import EmergencyCheckout from './components/EmergencyCheckout';
-import UltraSimpleCheckout from './components/UltraSimpleCheckout';
-import SimpleCartCheckout from './components/SimpleCartCheckout';
-import DebugCartCheckout from './components/DebugCartCheckout';
-import UltraSimplePayment from './components/UltraSimplePayment';
-import ProductFinder from './components/ProductFinder';
-import BigCommerceTest from './components/BigCommerceTest';
-// import ProductionDebug from './components/ProductionDebug';
 
 // Services
 import { stockSyncService } from './services/stock-sync';
@@ -149,23 +135,7 @@ const App: React.FC = () => {
                     <Route path="/vote" element={<VotePage />} />
                     <Route path="/favorites" element={<FavoritesPage />} />
                     <Route path="/cgv" element={<CGVPage />} />
-                    <Route path="/checkout" element={<ShopifyCheckoutPage />} />
-                    <Route path="/checkout/:checkoutId" element={<ShopifyCheckoutPage />} />
-                    <Route path="/test/checkout" element={<CheckoutTest />} />
-                    {/* <Route path="/test/integrations" element={<IntegrationTest />} /> */}
-                    <Route path="/test/simple" element={<SimpleCheckout />} />
-                    <Route path="/test/diagnostic" element={<Diagnostic />} />
-                    <Route path="/quick-checkout" element={<QuickCheckout />} />
-                    <Route path="/emergency" element={<EmergencyCheckout />} />
-                    <Route path="/ultra-simple" element={<UltraSimpleCheckout />} />
-                    <Route path="/cart-checkout" element={<SimpleCartCheckout />} />
-                    <Route path="/debug-checkout" element={<DebugCartCheckout />} />
-                    <Route path="/ultra-payment" element={<UltraSimplePayment />} />
-                    <Route path="/product-finder" element={<ProductFinder />} />
-                    <Route path="/bigcommerce-test" element={<BigCommerceTest />} />
-                    {/* <Route path="/production-debug" element={<ProductionDebug />} /> */}
-                    <Route path="/checkout" element={<UltraSimplePayment />} />
-                    <Route path="/checkout/:checkoutId" element={<UltraSimplePayment />} />
+                    <Route path="/checkout" element={<div>Checkout (BigCommerce)</div>} />
                   </Routes>
                 </main>
                 <Footer />

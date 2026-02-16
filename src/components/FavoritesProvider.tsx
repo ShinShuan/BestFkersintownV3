@@ -42,7 +42,7 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
     }
   }, [user]);
 
-  // Charger les favoris depuis Shopify
+  // Charger les favoris
   const loadFavorites = async (): Promise<void> => {
     if (!user) return;
 
@@ -77,9 +77,9 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
 
     try {
       setFavoritesState(prev => ({ ...prev, isLoading: true, error: null }));
-      
+
       const newFavorite = await favoritesService.addToFavorites(user.id, { id: productId, title: '', image: '', price: '' });
-      
+
       setFavoritesState(prev => ({
         ...prev,
         favorites: [...prev.favorites, newFavorite],
@@ -113,9 +113,9 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
 
     try {
       setFavoritesState(prev => ({ ...prev, isLoading: true, error: null }));
-      
+
       await favoritesService.removeFromFavorites(user.id, productId);
-      
+
       setFavoritesState(prev => ({
         ...prev,
         favorites: prev.favorites.filter(fav => fav.productId !== productId),
@@ -159,9 +159,9 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
 
     try {
       setFavoritesState(prev => ({ ...prev, isLoading: true, error: null }));
-      
+
       await favoritesService.clearAllFavorites(user.id);
-      
+
       setFavoritesState({
         favorites: [],
         isLoading: false,

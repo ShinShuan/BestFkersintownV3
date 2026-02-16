@@ -14,7 +14,7 @@ export interface User {
   lastName: string;
   avatar?: string;
   isAuthenticated: boolean;
-  shopifyCustomerId?: string;
+  bcCustomerId?: string;
   googleId?: string;
 }
 
@@ -43,7 +43,7 @@ export const authService = {
         firstName: customer.first_name,
         lastName: customer.last_name,
         isAuthenticated: true,
-        shopifyCustomerId: customer.id.toString()
+        bcCustomerId: customer.id.toString()
       };
 
       localStorage.setItem('user', JSON.stringify(user));
@@ -69,7 +69,7 @@ export const authService = {
         firstName: customer.first_name,
         lastName: customer.last_name,
         isAuthenticated: true,
-        shopifyCustomerId: customer.id.toString()
+        bcCustomerId: customer.id.toString()
       };
 
       localStorage.setItem('user', JSON.stringify(user));
@@ -119,7 +119,7 @@ export const authService = {
         lastName: bcCustomer.last_name,
         avatar: payload.picture,
         isAuthenticated: true,
-        shopifyCustomerId: bcCustomer.id.toString(), // Gardé pour compatibilité avec le reste de l'app
+        bcCustomerId: bcCustomer.id.toString(),
         googleId: payload.sub
       };
 

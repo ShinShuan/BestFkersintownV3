@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import { Trash2, Plus, Minus, ArrowRight, ShoppingBag } from 'lucide-react';
 import { useLanguage } from '../components/LanguageProvider';
 import { useCart } from '../components/CartProvider';
-import { cartService } from '../services/shopify-cart';
 import { useNotification } from '../components/NotificationProvider';
 import CartUpsell from '../components/CartUpsell';
 import UpsellModal from '../components/UpsellModal';
@@ -285,7 +284,7 @@ const ContinueShoppingButton = styled(Link)`
 
 const CartPage: React.FC = () => {
   const { language } = useLanguage();
-  const { cart, removeFromCart, updateQuantity } = useCart();
+  const { cart, removeFromCart, updateQuantity, getCheckoutUrl } = useCart();
   const { showNotification } = useNotification();
   const navigate = useNavigate();
   const [localCart, setLocalCart] = useState(cart);
@@ -313,7 +312,7 @@ const CartPage: React.FC = () => {
       showNotification({
         type: 'info',
         title: language === 'fr' ? 'Produit retiré' : 'Product removed',
-        message: language === 'fr' 
+        message: language === 'fr'
           ? 'Produit retiré du panier'
           : 'Product removed from cart'
       });
@@ -327,7 +326,7 @@ const CartPage: React.FC = () => {
     showNotification({
       type: 'info',
       title: language === 'fr' ? 'Produit retiré' : 'Product removed',
-      message: language === 'fr' 
+      message: language === 'fr'
         ? 'Produit retiré du panier'
         : 'Product removed from cart'
     });
@@ -337,46 +336,22 @@ const CartPage: React.FC = () => {
     try {
       showNotification({
         type: 'info',
-        title: language === 'fr' ? 'Préparation de la commande' : 'Preparing order',
-        message: language === 'fr' 
-          ? 'Création du panier Shopify...'
-          : 'Creating Shopify cart...'
+        title: language === 'fr' ? 'Préparation du paiement' : 'Preparing checkout',
+        message: language === 'fr'
+          ? 'Redirection vers la page sécurisée...'
+          : 'Redirecting to secure checkout...'
       });
 
-      // Convertir les articles du panier local en format Shopify
-      const lineItems = localCart.items.map(item => ({
-        variantId: (item.shopifyVariantId || item.variantId) || '',
-        quantity: item.quantity
-      }));
-
-      console.log('🛒 Création du panier Shopify avec:', lineItems);
-
-      // Créer le panier Shopify avec les articles
-      const cart = await cartService.createCart(lineItems);
-      
-      console.log('✅ Panier Shopify créé:', cart.id);
-
-      showNotification({
-        type: 'success',
-        title: language === 'fr' ? 'Commande en cours' : 'Order in progress',
-        message: language === 'fr' 
-          ? 'Redirection vers la page de paiement...'
-          : 'Redirecting to payment page...'
-      });
-
-      // Rediriger vers le checkout Shopify
-      setTimeout(() => {
-        window.location.href = cart.checkoutUrl;
-      }, 1000);
-
+      const checkoutUrl = await getCheckoutUrl();
+      window.location.href = checkoutUrl;
     } catch (error) {
-      console.error('❌ Erreur lors de la création du panier:', error);
+      console.error('Erreur lors du checkout:', error);
       showNotification({
         type: 'error',
-        title: language === 'fr' ? 'Erreur de paiement' : 'Payment error',
-        message: language === 'fr' 
-          ? 'Impossible de créer le panier. Veuillez réessayer.'
-          : 'Unable to create cart. Please try again.'
+        title: language === 'fr' ? 'Erreur' : 'Error',
+        message: language === 'fr'
+          ? 'Impossible d\'accéder à la page de paiement. Veuillez réessayer.'
+          : 'Unable to reach checkout. Please try again.'
       });
     }
   };
@@ -390,7 +365,7 @@ const CartPage: React.FC = () => {
               {language === 'fr' ? 'Votre Panier' : 'Your Cart'}
             </PageTitle>
           </PageHeader>
-          
+
           <EmptyCart>
             <EmptyCartIcon>
               <ShoppingBag size={40} />
@@ -399,7 +374,7 @@ const CartPage: React.FC = () => {
               {language === 'fr' ? 'Votre panier est vide' : 'Your cart is empty'}
             </h3>
             <p>
-              {language === 'fr' 
+              {language === 'fr'
                 ? 'Ajoutez quelques produits pour commencer vos achats'
                 : 'Add some products to start shopping'
               }
@@ -442,7 +417,7 @@ const CartPage: React.FC = () => {
                           <span key={option.name}>
                             {option.name}: {option.value}
                           </span>
-                        )).reduce((prev, curr, index) => 
+                        )).reduce((prev, curr, index) =>
                           index === 0 ? [curr] : [...prev, ' • ', curr], [] as React.ReactNode[]
                         )}
                       </ItemVariant>
@@ -469,40 +444,40 @@ const CartPage: React.FC = () => {
                   </ItemActions>
                 </ItemInfo>
               </CartItem>
-                          ))}
-            </CartItems>
+            ))}
+          </CartItems>
 
-            <CartSummary>
+          <CartSummary>
             <SummaryTitle>
               {language === 'fr' ? 'Récapitulatif' : 'Summary'}
             </SummaryTitle>
-            
+
             <SummaryRow>
               <SummaryLabel>
                 {language === 'fr' ? 'Sous-total TTC' : 'Subtotal incl. VAT'}
               </SummaryLabel>
               <SummaryValue>€{localCart.subtotal.toFixed(2)}</SummaryValue>
             </SummaryRow>
-            
+
             <SummaryRow>
               <SummaryLabel>
                 {language === 'fr' ? 'Dont TVA (20%)' : 'Incl. VAT (20%)'}
               </SummaryLabel>
               <SummaryValue>€{localCart.tax.toFixed(2)}</SummaryValue>
             </SummaryRow>
-            
+
             <SummaryRow>
               <SummaryLabel>
                 {language === 'fr' ? 'Livraison' : 'Shipping'}
               </SummaryLabel>
               <SummaryValue>
-                {localCart.shipping === 0 
+                {localCart.shipping === 0
                   ? (language === 'fr' ? 'Gratuit' : 'Free')
                   : `€${localCart.shipping.toFixed(2)}`
                 }
               </SummaryValue>
             </SummaryRow>
-            
+
             <SummaryRow>
               <SummaryLabel>
                 {language === 'fr' ? 'Total' : 'Total'}

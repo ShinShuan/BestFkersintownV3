@@ -266,18 +266,17 @@ export const airtableService = {
     return await this.getRecords(TABLES.SUPPORT, filterByFormula);
   },
 
-  // Méthodes utilitaires pour le CRM
-  async syncCustomerFromShopify(shopifyCustomer: any): Promise<any> {
-    const existingCustomer = await this.getCustomerByEmail(shopifyCustomer.email);
-    
+  async syncCustomerFromBigCommerce(bcCustomer: any): Promise<any> {
+    const existingCustomer = await this.getCustomerByEmail(bcCustomer.email);
+
     const customerData: AirtableCustomer['fields'] = {
-      Email: shopifyCustomer.email,
-      'First Name': shopifyCustomer.firstName || '',
-      'Last Name': shopifyCustomer.lastName || '',
-      Phone: shopifyCustomer.phone || '',
-      'Total Spent': parseFloat(shopifyCustomer.totalSpent || '0'),
-      'Orders Count': shopifyCustomer.ordersCount || 0,
-      'Last Order Date': shopifyCustomer.lastOrderDate || '',
+      Email: bcCustomer.email,
+      'First Name': bcCustomer.firstName || '',
+      'Last Name': bcCustomer.lastName || '',
+      Phone: bcCustomer.phone || '',
+      'Total Spent': parseFloat(bcCustomer.totalSpent || '0'),
+      'Orders Count': bcCustomer.ordersCount || 0,
+      'Last Order Date': bcCustomer.lastOrderDate || '',
       Status: 'active',
       'Created Date': new Date().toISOString(),
       'Updated Date': new Date().toISOString(),
@@ -290,21 +289,21 @@ export const airtableService = {
     }
   },
 
-  async syncOrderFromShopify(shopifyOrder: any): Promise<any> {
+  async syncOrderFromBigCommerce(bcOrder: any): Promise<any> {
     const orderData: AirtableOrder['fields'] = {
-      'Order ID': shopifyOrder.id,
-      'Customer Email': shopifyOrder.email,
-      'Customer Name': `${shopifyOrder.customer?.firstName || ''} ${shopifyOrder.customer?.lastName || ''}`.trim(),
-      'Order Date': shopifyOrder.createdAt,
-      'Order Status': this.mapShopifyStatusToAirtable(shopifyOrder.fulfillmentStatus),
-      'Total Amount': parseFloat(shopifyOrder.totalPrice || '0'),
-      'Shipping Address': this.formatAddress(shopifyOrder.shippingAddress),
-      'Billing Address': this.formatAddress(shopifyOrder.billingAddress),
-      'Payment Method': shopifyOrder.paymentGatewayNames?.[0] || '',
-      'Payment Status': this.mapShopifyPaymentStatusToAirtable(shopifyOrder.financialStatus),
-      'Tracking Number': shopifyOrder.fulfillments?.[0]?.trackingNumber || '',
-      'Items': shopifyOrder.lineItems?.map((item: any) => `${item.title} (x${item.quantity})`) || [],
-      'Notes': shopifyOrder.note || '',
+      'Order ID': bcOrder.id,
+      'Customer Email': bcOrder.email,
+      'Customer Name': `${bcOrder.customer?.firstName || ''} ${bcOrder.customer?.lastName || ''}`.trim(),
+      'Order Date': bcOrder.createdAt,
+      'Order Status': this.mapBigCommerceStatusToAirtable(bcOrder.fulfillmentStatus),
+      'Total Amount': parseFloat(bcOrder.totalPrice || '0'),
+      'Shipping Address': this.formatAddress(bcOrder.shippingAddress),
+      'Billing Address': this.formatAddress(bcOrder.billingAddress),
+      'Payment Method': bcOrder.paymentGatewayNames?.[0] || '',
+      'Payment Status': this.mapBigCommercePaymentStatusToAirtable(bcOrder.financialStatus),
+      'Tracking Number': bcOrder.fulfillments?.[0]?.trackingNumber || '',
+      'Items': bcOrder.lineItems?.map((item: any) => `${item.title} (x${item.quantity})`) || [],
+      'Notes': bcOrder.note || '',
       'Created Date': new Date().toISOString(),
       'Updated Date': new Date().toISOString(),
     };
@@ -313,24 +312,24 @@ export const airtableService = {
   },
 
   // Méthodes utilitaires
-  mapShopifyStatusToAirtable(shopifyStatus: string): AirtableOrder['fields']['Order Status'] {
+  mapBigCommerceStatusToAirtable(bcStatus: string): AirtableOrder['fields']['Order Status'] {
     const statusMap: Record<string, AirtableOrder['fields']['Order Status']> = {
       'fulfilled': 'shipped',
       'partial': 'shipped',
       'unfulfilled': 'confirmed',
       'cancelled': 'cancelled',
     };
-    return statusMap[shopifyStatus] || 'pending';
+    return statusMap[bcStatus] || 'pending';
   },
 
-  mapShopifyPaymentStatusToAirtable(shopifyStatus: string): AirtableOrder['fields']['Payment Status'] {
+  mapBigCommercePaymentStatusToAirtable(bcStatus: string): AirtableOrder['fields']['Payment Status'] {
     const statusMap: Record<string, AirtableOrder['fields']['Payment Status']> = {
       'paid': 'paid',
       'pending': 'pending',
       'failed': 'failed',
       'refunded': 'refunded',
     };
-    return statusMap[shopifyStatus] || 'pending';
+    return statusMap[bcStatus] || 'pending';
   },
 
   formatAddress(address: any): string {

@@ -338,7 +338,7 @@ const Stars = styled.div`
   gap: 2px;
 `;
 
-const StarIcon = styled(Star)<{ $filled: boolean }>`
+const StarIcon = styled(Star) <{ $filled: boolean }>`
   color: ${props => props.$filled ? 'var(--accent-yellow)' : 'var(--gray-300)'};
   fill: ${props => props.$filled ? 'var(--accent-yellow)' : 'none'};
 `;
@@ -500,22 +500,21 @@ const HomePage: React.FC = () => {
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Charger les produits Shopify pour la page d'accueil
+  // Charger les produits pour la page d'accueil
   useEffect(() => {
     const loadFeaturedProducts = async () => {
       try {
         setLoading(true);
-        
-        const shopifyResponse = await productService.getAllProducts();
-        
-        if (shopifyResponse.products && shopifyResponse.products.length > 0) {
-          // Prendre les 3 premiers produits BigCommerce
-          const transformedProducts = shopifyResponse.products.slice(0, 3).map((bcProduct: NormalizedProduct) => ({
+
+        const response = await productService.getAllProducts();
+
+        if (response.products && response.products.length > 0) {
+          // Prendre les 3 premiers produits
+          const transformedProducts = response.products.slice(0, 3).map((bcProduct: NormalizedProduct) => ({
             id: bcProduct.id.toString(),
             title: bcProduct.title,
-            price: parseFloat(bcProduct.variants[0]?.price || '0'),
-            originalPrice: bcProduct.variants[0]?.compareAtPrice ?
-              parseFloat(bcProduct.variants[0].compareAtPrice) : undefined,
+            price: bcProduct.variants[0]?.price || 0,
+            originalPrice: bcProduct.variants[0]?.compareAtPrice || undefined,
             image: bcProduct.images[0]?.src || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop',
             rating: 4.5,
             reviews: Math.floor(Math.random() * 500) + 100
@@ -523,7 +522,7 @@ const HomePage: React.FC = () => {
 
           setFeaturedProducts(transformedProducts);
         } else {
-          // Fallback avec des données mockées si pas de produits Shopify
+          // Fallback avec des données mockées si pas de produits
           const fallbackProducts = [
             {
               id: '1',
@@ -615,11 +614,11 @@ const HomePage: React.FC = () => {
       createdAt: '',
       updatedAt: ''
     });
-    
+
     showNotification({
       type: 'success',
       title: language === 'fr' ? 'Produit ajouté' : 'Product added',
-      message: language === 'fr' 
+      message: language === 'fr'
         ? `${product.title} a été ajouté au panier`
         : `${product.title} has been added to cart`
     });
@@ -629,7 +628,7 @@ const HomePage: React.FC = () => {
     showNotification({
       type: 'info',
       title: language === 'fr' ? 'Favori ajouté' : 'Favorite added',
-      message: language === 'fr' 
+      message: language === 'fr'
         ? 'Produit ajouté aux favoris'
         : 'Product added to favorites'
     });
@@ -640,26 +639,26 @@ const HomePage: React.FC = () => {
       <HeroSection>
         <HeroBackground />
         <HeroContent>
-                                 <HeroTitle
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              {language === 'fr' 
-                        ? 'BestF.kersinTown - Mode Inclusive & Authentique'
-        : 'BestF.kersinTown - Inclusive & Authentic Fashion'
-              }
-            </HeroTitle>
-            <HeroSubtitle
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-            >
-              {language === 'fr'
-                ? 'Découvrez une mode qui vous ressemble vraiment ! Des vêtements audacieux et vibrants qui célèbrent votre authenticité. Rejoignez notre communauté inclusive et exprimez-vous sans limites.'
-                : 'Discover fashion that truly reflects you! Bold and vibrant clothing that celebrates your authenticity. Join our inclusive community and express yourself without limits.'
-              }
-            </HeroSubtitle>
+          <HeroTitle
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            {language === 'fr'
+              ? 'BestF.kersinTown - Mode Inclusive & Authentique'
+              : 'BestF.kersinTown - Inclusive & Authentic Fashion'
+            }
+          </HeroTitle>
+          <HeroSubtitle
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            {language === 'fr'
+              ? 'Découvrez une mode qui vous ressemble vraiment ! Des vêtements audacieux et vibrants qui célèbrent votre authenticité. Rejoignez notre communauté inclusive et exprimez-vous sans limites.'
+              : 'Discover fashion that truly reflects you! Bold and vibrant clothing that celebrates your authenticity. Join our inclusive community and express yourself without limits.'
+            }
+          </HeroSubtitle>
           <HeroButtons
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -674,170 +673,170 @@ const HomePage: React.FC = () => {
               {language === 'fr' ? 'Voir la vidéo' : 'Watch video'}
             </SecondaryButton>
           </HeroButtons>
-                 </HeroContent>
-       </HeroSection>
+        </HeroContent>
+      </HeroSection>
 
-       <BannerStrip>
-         {language === 'fr' ? 'Best F.kers in Town Depuis 2025...' : 'Best F.kers in Town Since 2025...'}
-       </BannerStrip>
+      <BannerStrip>
+        {language === 'fr' ? 'Best F.kers in Town Depuis 2025...' : 'Best F.kers in Town Since 2025...'}
+      </BannerStrip>
 
-       <ContentBelowBanner>
-         <Container>
-           <ContentTitle
-             initial={{ opacity: 0, y: 30 }}
-             animate={{ opacity: 1, y: 0 }}
-             transition={{ duration: 0.8 }}
-           >
-             <span className="bft-title" style={{ display: 'block', marginBottom: '0.5rem' }}>BFT</span>
-             {language === 'fr'
-               ? <>Best F.kers <span className="brand-in">in</span> Town - Mode Inclusive & Authentique</>
-               : <>Best F.kers <span className="brand-in">in</span> Town - Inclusive & Authentic Fashion</>
-             }
-           </ContentTitle>
-           <ContentSubtitle
-             initial={{ opacity: 0, y: 30 }}
-             animate={{ opacity: 1, y: 0 }}
-             transition={{ duration: 0.8, delay: 0.2 }}
-           >
-             {language === 'fr'
-               ? 'Découvrez une mode qui vous ressemble vraiment ! Des vêtements audacieux et vibrants qui célèbrent votre authenticité. Rejoignez notre communauté inclusive et exprimez-vous sans limites.'
-               : 'Discover fashion that truly reflects you! Bold and vibrant clothing that celebrates your authenticity. Join our inclusive community and express yourself without limits.'
-             }
-           </ContentSubtitle>
-           <ContentButtons
-             initial={{ opacity: 0, y: 30 }}
-             animate={{ opacity: 1, y: 0 }}
-             transition={{ duration: 0.8, delay: 0.4 }}
-           >
-             <PrimaryButton to="/products">
-               {language === 'fr' ? 'Découvrir' : 'Discover'}
-               <ArrowRight size={20} />
-             </PrimaryButton>
-             <SecondaryButton>
-               <Play size={20} />
-               {language === 'fr' ? 'Voir la vidéo' : 'Watch video'}
-             </SecondaryButton>
-           </ContentButtons>
-         </Container>
-       </ContentBelowBanner>
+      <ContentBelowBanner>
+        <Container>
+          <ContentTitle
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <span className="bft-title" style={{ display: 'block', marginBottom: '0.5rem' }}>BFT</span>
+            {language === 'fr'
+              ? <>Best F.kers <span className="brand-in">in</span> Town - Mode Inclusive & Authentique</>
+              : <>Best F.kers <span className="brand-in">in</span> Town - Inclusive & Authentic Fashion</>
+            }
+          </ContentTitle>
+          <ContentSubtitle
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            {language === 'fr'
+              ? 'Découvrez une mode qui vous ressemble vraiment ! Des vêtements audacieux et vibrants qui célèbrent votre authenticité. Rejoignez notre communauté inclusive et exprimez-vous sans limites.'
+              : 'Discover fashion that truly reflects you! Bold and vibrant clothing that celebrates your authenticity. Join our inclusive community and express yourself without limits.'
+            }
+          </ContentSubtitle>
+          <ContentButtons
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
+            <PrimaryButton to="/products">
+              {language === 'fr' ? 'Découvrir' : 'Discover'}
+              <ArrowRight size={20} />
+            </PrimaryButton>
+            <SecondaryButton>
+              <Play size={20} />
+              {language === 'fr' ? 'Voir la vidéo' : 'Watch video'}
+            </SecondaryButton>
+          </ContentButtons>
+        </Container>
+      </ContentBelowBanner>
 
-       <IntroSection>
+      <IntroSection>
         <Container>
           <IntroGrid>
             <IntroContent>
-                                             <IntroTitle
-                  initial={{ opacity: 0, x: -30 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.8 }}
-                  viewport={{ once: true }}
-                >
-                  {language === 'fr'
-                    ? <>Pourquoi Vous Allez Adorer <span className="bft-title">BFT</span> ?</>
-                    : <>Why You'll Love <span className="bft-title">BFT</span>?</>
-                  }
-                </IntroTitle>
-                <IntroText
-                  initial={{ opacity: 0, x: -30 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.8, delay: 0.2 }}
-                  viewport={{ once: true }}
-                >
-                  {language === 'fr'
-                    ? 'Parce que vous méritez de vous sentir incroyable dans vos vêtements ! Nous créons chaque pièce avec votre bonheur en tête. Des designs qui vous font briller, des couleurs qui vous donnent confiance, et une qualité qui vous accompagne partout. Vous n\'êtes pas juste un client, vous faites partie de notre famille.'
-                    : 'Because you deserve to feel amazing in your clothes! We create each piece with your happiness in mind. Designs that make you shine, colors that give you confidence, and quality that follows you everywhere. You\'re not just a customer, you\'re part of our family.'
-                  }
-                </IntroText>
+              <IntroTitle
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8 }}
+                viewport={{ once: true }}
+              >
+                {language === 'fr'
+                  ? <>Pourquoi Vous Allez Adorer <span className="bft-title">BFT</span> ?</>
+                  : <>Why You'll Love <span className="bft-title">BFT</span>?</>
+                }
+              </IntroTitle>
+              <IntroText
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                viewport={{ once: true }}
+              >
+                {language === 'fr'
+                  ? 'Parce que vous méritez de vous sentir incroyable dans vos vêtements ! Nous créons chaque pièce avec votre bonheur en tête. Des designs qui vous font briller, des couleurs qui vous donnent confiance, et une qualité qui vous accompagne partout. Vous n\'êtes pas juste un client, vous faites partie de notre famille.'
+                  : 'Because you deserve to feel amazing in your clothes! We create each piece with your happiness in mind. Designs that make you shine, colors that give you confidence, and quality that follows you everywhere. You\'re not just a customer, you\'re part of our family.'
+                }
+              </IntroText>
               <IntroFeatures
                 initial={{ opacity: 0, x: -30 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
                 viewport={{ once: true }}
               >
-                                 <Feature>
-                   <FeatureIcon>🌈</FeatureIcon>
-                   <span>
-                     {language === 'fr' ? 'Créé pour VOUS, par des gens comme VOUS' : 'Created for YOU, by people like YOU'}
-                   </span>
-                 </Feature>
-                 <Feature>
-                   <FeatureIcon>✨</FeatureIcon>
-                   <span>
-                     {language === 'fr' ? 'Des designs qui vous font briller' : 'Designs that make you shine'}
-                   </span>
-                 </Feature>
-                 <Feature>
-                   <FeatureIcon>💚</FeatureIcon>
-                   <span>
-                     {language === 'fr' ? 'Qualité qui vous accompagne partout' : 'Quality that follows you everywhere'}
-                   </span>
-                 </Feature>
+                <Feature>
+                  <FeatureIcon>🌈</FeatureIcon>
+                  <span>
+                    {language === 'fr' ? 'Créé pour VOUS, par des gens comme VOUS' : 'Created for YOU, by people like YOU'}
+                  </span>
+                </Feature>
+                <Feature>
+                  <FeatureIcon>✨</FeatureIcon>
+                  <span>
+                    {language === 'fr' ? 'Des designs qui vous font briller' : 'Designs that make you shine'}
+                  </span>
+                </Feature>
+                <Feature>
+                  <FeatureIcon>💚</FeatureIcon>
+                  <span>
+                    {language === 'fr' ? 'Qualité qui vous accompagne partout' : 'Quality that follows you everywhere'}
+                  </span>
+                </Feature>
               </IntroFeatures>
             </IntroContent>
-            
-                         <motion.div
-               initial={{ opacity: 0, y: 30 }}
-               whileInView={{ opacity: 1, y: 0 }}
-               transition={{ duration: 0.8, delay: 0.3 }}
-               viewport={{ once: true }}
-             >
-               <IntroTitle style={{ marginBottom: 'var(--spacing-8)' }}>
-                 {language === 'fr' ? 'Découvrez Votre Style Unique' : 'Discover Your Unique Style'}
-               </IntroTitle>
-             </motion.div>
-             <ProductGrid>
-               {loading ? (
-                 // État de chargement
-                 Array.from({ length: 3 }).map((_, index) => (
-                   <ProductCard
-                     key={`loading-${index}`}
-                     initial={{ opacity: 0, y: 30 }}
-                     animate={{ opacity: 1, y: 0 }}
-                     transition={{ duration: 0.6, delay: index * 0.1 }}
-                   >
-                     <ProductImage $image="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop">
-                       <div style={{ 
-                         position: 'absolute', 
-                         top: 0, 
-                         left: 0, 
-                         right: 0, 
-                         bottom: 0, 
-                         background: 'rgba(255, 255, 255, 0.8)',
-                         display: 'flex',
-                         alignItems: 'center',
-                         justifyContent: 'center'
-                       }}>
-                         <div style={{ 
-                           width: '40px', 
-                           height: '40px', 
-                           border: '4px solid #f3f3f3',
-                                                       borderTop: '4px solid #d13296',
-                           borderRadius: '50%',
-                           animation: 'spin 1s linear infinite'
-                         }}></div>
-                       </div>
-                     </ProductImage>
-                     <ProductInfo>
-                       <div style={{ 
-                         height: '20px', 
-                         background: '#f0f0f0', 
-                         marginBottom: '8px',
-                         borderRadius: '4px',
-                         animation: 'pulse 1.5s ease-in-out infinite'
-                       }}></div>
-                       <div style={{ 
-                         height: '16px', 
-                         background: '#f0f0f0', 
-                         marginBottom: '16px',
-                         borderRadius: '4px',
-                         width: '60%',
-                         animation: 'pulse 1.5s ease-in-out infinite'
-                       }}></div>
-                     </ProductInfo>
-                   </ProductCard>
-                 ))
-               ) : (
-                 // Produits chargés
-                 featuredProducts.map((product, index) => (
+
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              viewport={{ once: true }}
+            >
+              <IntroTitle style={{ marginBottom: 'var(--spacing-8)' }}>
+                {language === 'fr' ? 'Découvrez Votre Style Unique' : 'Discover Your Unique Style'}
+              </IntroTitle>
+            </motion.div>
+            <ProductGrid>
+              {loading ? (
+                // État de chargement
+                Array.from({ length: 3 }).map((_, index) => (
+                  <ProductCard
+                    key={`loading-${index}`}
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                  >
+                    <ProductImage $image="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop">
+                      <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(255, 255, 255, 0.8)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        <div style={{
+                          width: '40px',
+                          height: '40px',
+                          border: '4px solid #f3f3f3',
+                          borderTop: '4px solid #d13296',
+                          borderRadius: '50%',
+                          animation: 'spin 1s linear infinite'
+                        }}></div>
+                      </div>
+                    </ProductImage>
+                    <ProductInfo>
+                      <div style={{
+                        height: '20px',
+                        background: '#f0f0f0',
+                        marginBottom: '8px',
+                        borderRadius: '4px',
+                        animation: 'pulse 1.5s ease-in-out infinite'
+                      }}></div>
+                      <div style={{
+                        height: '16px',
+                        background: '#f0f0f0',
+                        marginBottom: '16px',
+                        borderRadius: '4px',
+                        width: '60%',
+                        animation: 'pulse 1.5s ease-in-out infinite'
+                      }}></div>
+                    </ProductInfo>
+                  </ProductCard>
+                ))
+              ) : (
+                // Produits chargés
+                featuredProducts.map((product, index) => (
                   <ProductCard
                     key={product.id}
                     initial={{ opacity: 0, y: 30 }}
@@ -880,99 +879,99 @@ const HomePage: React.FC = () => {
                     </ProductInfo>
                   </ProductCard>
                 ))
-               )}
+              )}
             </ProductGrid>
           </IntroGrid>
-                 </Container>
-       </IntroSection>
+        </Container>
+      </IntroSection>
 
-       <SecondIntroSection>
-         <Container>
-           <SecondIntroContent>
-                           <SecondIntroTitle
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
-                viewport={{ once: true }}
-              >
-                {language === 'fr' 
-                  ? 'Prêt(e) à Transformer Votre Garde-Robe ?'
-                  : 'Ready to Transform Your Wardrobe?'
-                }
-              </SecondIntroTitle>
-              <SecondIntroText
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                viewport={{ once: true }}
-              >
-                {language === 'fr'
-                  ? <>Chaque piece que vous choisissez raconte votre histoire. Nos vetements ne sont pas juste des vetements, ce sont des declarations de qui vous etes vraiment. Rejoignez des milliers de personnes qui ont deja trouve leur style unique avec <span className="bft-title">BFT</span>.</>
-                  : <>Every piece you choose tells your story. Our clothes aren't just clothes, they're declarations of who you truly are. Join thousands of people who have already found their unique style with <span className="bft-title">BFT</span>.</>
-                }
-              </SecondIntroText>
-             <motion.div
-               initial={{ opacity: 0, y: 30 }}
-               whileInView={{ opacity: 1, y: 0 }}
-               transition={{ duration: 0.8, delay: 0.4 }}
-               viewport={{ once: true }}
-             >
-               <CTAButton to="/products">
-                 {language === 'fr' ? 'Découvrir Toute la Collection' : 'Discover the Full Collection'}
-                 <ArrowRight size={20} />
-               </CTAButton>
-             </motion.div>
-           </SecondIntroContent>
-                 </Container>
+      <SecondIntroSection>
+        <Container>
+          <SecondIntroContent>
+            <SecondIntroTitle
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+            >
+              {language === 'fr'
+                ? 'Prêt(e) à Transformer Votre Garde-Robe ?'
+                : 'Ready to Transform Your Wardrobe?'
+              }
+            </SecondIntroTitle>
+            <SecondIntroText
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
+              {language === 'fr'
+                ? <>Chaque piece que vous choisissez raconte votre histoire. Nos vetements ne sont pas juste des vetements, ce sont des declarations de qui vous etes vraiment. Rejoignez des milliers de personnes qui ont deja trouve leur style unique avec <span className="bft-title">BFT</span>.</>
+                : <>Every piece you choose tells your story. Our clothes aren't just clothes, they're declarations of who you truly are. Join thousands of people who have already found their unique style with <span className="bft-title">BFT</span>.</>
+              }
+            </SecondIntroText>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              viewport={{ once: true }}
+            >
+              <CTAButton to="/products">
+                {language === 'fr' ? 'Découvrir Toute la Collection' : 'Discover the Full Collection'}
+                <ArrowRight size={20} />
+              </CTAButton>
+            </motion.div>
+          </SecondIntroContent>
+        </Container>
       </SecondIntroSection>
 
       <StatsSection>
         <Container>
           <StatsGrid>
-                         <StatItem
-               initial={{ opacity: 0, y: 20 }}
-               whileInView={{ opacity: 1, y: 0 }}
-               transition={{ duration: 0.6 }}
-               viewport={{ once: true }}
-             >
-               <StatNumber>15K+</StatNumber>
-               <StatLabel>
-                 {language === 'fr' ? 'Membres de la communauté' : 'Community Members'}
-               </StatLabel>
-             </StatItem>
-             <StatItem
-               initial={{ opacity: 0, y: 20 }}
-               whileInView={{ opacity: 1, y: 0 }}
-               transition={{ duration: 0.6, delay: 0.1 }}
-               viewport={{ once: true }}
-             >
-               <StatNumber>200+</StatNumber>
-               <StatLabel>
-                 {language === 'fr' ? 'Designs exclusifs' : 'Exclusive Designs'}
-               </StatLabel>
-             </StatItem>
-             <StatItem
-               initial={{ opacity: 0, y: 20 }}
-               whileInView={{ opacity: 1, y: 0 }}
-               transition={{ duration: 0.6, delay: 0.2 }}
-               viewport={{ once: true }}
-             >
-               <StatNumber>98%</StatNumber>
-               <StatLabel>
-                 {language === 'fr' ? 'Satisfaction client' : 'Customer Satisfaction'}
-               </StatLabel>
-             </StatItem>
-             <StatItem
-               initial={{ opacity: 0, y: 20 }}
-               whileInView={{ opacity: 1, y: 0 }}
-               transition={{ duration: 0.6, delay: 0.3 }}
-               viewport={{ once: true }}
-             >
-               <StatNumber>24h</StatNumber>
-               <StatLabel>
-                 {language === 'fr' ? 'Livraison express' : 'Express Delivery'}
-               </StatLabel>
-             </StatItem>
+            <StatItem
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <StatNumber>15K+</StatNumber>
+              <StatLabel>
+                {language === 'fr' ? 'Membres de la communauté' : 'Community Members'}
+              </StatLabel>
+            </StatItem>
+            <StatItem
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              viewport={{ once: true }}
+            >
+              <StatNumber>200+</StatNumber>
+              <StatLabel>
+                {language === 'fr' ? 'Designs exclusifs' : 'Exclusive Designs'}
+              </StatLabel>
+            </StatItem>
+            <StatItem
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
+              <StatNumber>98%</StatNumber>
+              <StatLabel>
+                {language === 'fr' ? 'Satisfaction client' : 'Customer Satisfaction'}
+              </StatLabel>
+            </StatItem>
+            <StatItem
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              viewport={{ once: true }}
+            >
+              <StatNumber>24h</StatNumber>
+              <StatLabel>
+                {language === 'fr' ? 'Livraison express' : 'Express Delivery'}
+              </StatLabel>
+            </StatItem>
           </StatsGrid>
         </Container>
       </StatsSection>

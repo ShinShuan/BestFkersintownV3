@@ -300,11 +300,11 @@ const UpsellModal: React.FC<UpsellModalProps> = ({
   const { showNotification } = useNotification();
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
 
-  // Produits d'upsell recommandés - utiliser les vrais produits Shopify
+  // Produits d'upsell recommandés - utiliser les vrais produits BigCommerce
   const [upsellProducts, setUpsellProducts] = useState<UpsellProduct[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Charger les produits disponibles depuis Shopify
+  // Charger les produits disponibles depuis BigCommerce
   useEffect(() => {
     const loadUpsellProducts = async () => {
       try {
@@ -324,20 +324,20 @@ const UpsellModal: React.FC<UpsellModalProps> = ({
               );
             })
             .slice(0, 3)
-            .map((shopifyProduct: any) => ({
-              id: shopifyProduct.id.toString().split('/').pop() || shopifyProduct.id.toString(),
-              title: shopifyProduct.title,
-              price: parseFloat(shopifyProduct.variants[0]?.price || '0'),
-              originalPrice: shopifyProduct.variants[0]?.compareAtPrice ?
-                parseFloat(shopifyProduct.variants[0].compareAtPrice) : undefined,
-              image: shopifyProduct.images[0]?.src || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop',
+            .map((bcProduct: any) => ({
+              id: bcProduct.id.toString().split('/').pop() || bcProduct.id.toString(),
+              title: bcProduct.title,
+              price: parseFloat(bcProduct.variants[0]?.price || '0'),
+              originalPrice: bcProduct.variants[0]?.compareAtPrice ?
+                parseFloat(bcProduct.variants[0].compareAtPrice) : undefined,
+              image: bcProduct.images[0]?.src || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop',
               rating: 4.5,
-              category: shopifyProduct.productType || 'tshirt'
+              category: bcProduct.productType || 'tshirt'
             }));
 
           setUpsellProducts(availableProducts);
         } else {
-          // Fallback avec des produits fictifs si pas de produits Shopify
+          // Fallback avec des produits fictifs si pas de produits BigCommerce
           setUpsellProducts([]);
         }
       } catch (error) {

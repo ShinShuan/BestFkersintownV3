@@ -312,7 +312,7 @@ export interface BigCommerceOrder {
   };
 }
 
-// Interface normalisée pour compatibilité avec l'ancien code Shopify
+// Interface normalisée pour compatibilité avec le reste de l'application
 export interface NormalizedProduct {
   id: string;
   title: string;
@@ -351,7 +351,7 @@ export interface NormalizedProduct {
   }[];
 }
 
-// Fonction pour normaliser un produit BigCommerce vers le format Shopify
+// Fonction pour normaliser un produit BigCommerce vers le format standard de l'application
 function normalizeProduct(product: BigCommerceProduct): NormalizedProduct {
   return {
     id: product.id.toString(),

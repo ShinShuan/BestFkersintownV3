@@ -10,14 +10,6 @@ export const ENV_CONFIG = {
     STOREFRONT_URL: import.meta.env.VITE_BIGCOMMERCE_STOREFRONT_URL || 'https://store-qdy1j8i5vg.mybigcommerce.com',
   },
 
-  // Shopify Configuration (DEPRECATED - Keeping for reference during migration)
-  SHOPIFY: {
-    STORE_URL: import.meta.env.VITE_SHOPIFY_STORE_URL || 'jwbq9j-z9.myshopify.com',
-    ADMIN_ACCESS_TOKEN: import.meta.env.VITE_SHOPIFY_ADMIN_ACCESS_TOKEN || '',
-    STOREFRONT_ACCESS_TOKEN: import.meta.env.VITE_SHOPIFY_STOREFRONT_ACCESS_TOKEN || '',
-    FRONTEND_API_KEY: import.meta.env.VITE_SHOPIFY_FRONTEND_API_KEY || '',
-    FRONTEND_API_SECRET: import.meta.env.VITE_SHOPIFY_FRONTEND_API_SECRET || '',
-  },
 
   // Google OAuth Configuration
   GOOGLE: {

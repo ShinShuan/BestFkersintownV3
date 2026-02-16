@@ -38,7 +38,6 @@ export interface CartItem {
   id: string;
   productId: string;
   variantId?: string;
-  shopifyVariantId?: string; // ID Shopify pour la synchronisation
   title: string;
   price: number;
   quantity: number;

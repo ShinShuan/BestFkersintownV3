@@ -18,7 +18,6 @@ import { useNotification } from '../components/NotificationProvider';
 import Container from '../components/Container';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { customerService, orderService, BigCommerceCustomer as CustomerType, BigCommerceOrder as OrderType } from '../services/bigcommerce';
-import ShopifyAuthForm from '../components/ShopifyAuthForm';
 
 const AccountContainer = styled.div`
   min-height: 100vh;
@@ -477,20 +476,11 @@ const AccountPage: React.FC = () => {
             </AccountSubtitle>
           </AccountHeader>
 
-          <ShopifyAuthForm
-            onSuccess={(customerData) => {
-              setCustomer(customerData);
-              setIsLoggedIn(true);
-              loadOrders(Number(customerData.id));
-            }}
-            onClose={() => {
-              showNotification({
-                type: 'error',
-                title: language === 'fr' ? 'Erreur d\'authentification' : 'Authentication error',
-                message: 'Une erreur est survenue'
-              });
-            }}
-          />
+          <div style={{ textAlign: 'center', padding: 'var(--spacing-8)' }}>
+            <p>{language === 'fr'
+              ? 'L\'authentification est gérée via BigCommerce.'
+              : 'Authentication is managed via BigCommerce.'}</p>
+          </div>
         </Container>
       </AccountContainer>
     );

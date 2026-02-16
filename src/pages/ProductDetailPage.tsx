@@ -79,7 +79,7 @@ const ProductDetailPage: React.FC = () => {
     if (!product) return;
 
     const matchingVariant = product.variants.find(variant => {
-      return variant.selectedOptions.every(option =>
+      return variant.options.every(option =>
         selectedOptions[option.name] === option.value
       );
     });
@@ -102,15 +102,15 @@ const ProductDetailPage: React.FC = () => {
     const cartProduct = {
       id: product.id.toString().split('/').pop() || product.id.toString(),
       title: product.title,
-      price: parseFloat(selectedVariant.price),
+      price: selectedVariant.price,
       images: product.images.map(img => img.src),
       variants: [{
         id: selectedVariant.id,
         title: selectedVariant.title,
-        price: parseFloat(selectedVariant.price),
-        compareAtPrice: selectedVariant.compareAtPrice ? parseFloat(selectedVariant.compareAtPrice) : undefined,
+        price: selectedVariant.price,
+        compareAtPrice: selectedVariant.compareAtPrice || undefined,
         available: selectedVariant.available,
-        options: selectedVariant.selectedOptions
+        options: selectedVariant.options
       }],
       description: product.description || '',
       category: product.productType || 'Général',
@@ -294,9 +294,9 @@ const ProductDetailPage: React.FC = () => {
               {selectedVariant && (
                 <>
                   <PriceContainer>
-                    <CurrentPrice>€{parseFloat(selectedVariant.price).toFixed(2)}</CurrentPrice>
+                    <CurrentPrice>€{selectedVariant.price.toFixed(2)}</CurrentPrice>
                     {selectedVariant.compareAtPrice && (
-                      <OriginalPrice>€{parseFloat(selectedVariant.compareAtPrice).toFixed(2)}</OriginalPrice>
+                      <OriginalPrice>€{selectedVariant.compareAtPrice.toFixed(2)}</OriginalPrice>
                     )}
                   </PriceContainer>
 

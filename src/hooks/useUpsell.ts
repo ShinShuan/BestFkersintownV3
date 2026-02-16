@@ -183,7 +183,7 @@ export const useUpsell = () => {
     }
   };
 
-  // Obtenir des recommandations personnalisées basées sur les vrais produits Shopify
+  // Obtenir des recommandations personnalisées basées sur les vrais produits BigCommerce
   const getPersonalizedRecommendations = async (cartItems: any[], userPreferences?: any): Promise<any[]> => {
     try {
       // Importer le service BigCommerce
@@ -200,14 +200,14 @@ export const useUpsell = () => {
             );
           })
           .slice(0, 3) // Prendre les 3 premiers produits disponibles
-          .map((shopifyProduct: any) => ({
-            id: shopifyProduct.id.toString().split('/').pop() || shopifyProduct.id.toString(),
-            title: shopifyProduct.title,
-            price: parseFloat(shopifyProduct.variants[0]?.price || '0'),
-            originalPrice: shopifyProduct.variants[0]?.compareAtPrice ?
-              parseFloat(shopifyProduct.variants[0].compareAtPrice) : undefined,
-            image: shopifyProduct.images[0]?.src || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop',
-            category: shopifyProduct.productType || 'tshirt',
+          .map((bcProduct: any) => ({
+            id: bcProduct.id.toString().split('/').pop() || bcProduct.id.toString(),
+            title: bcProduct.title,
+            price: parseFloat(bcProduct.variants[0]?.price || '0'),
+            originalPrice: bcProduct.variants[0]?.compareAtPrice ?
+              parseFloat(bcProduct.variants[0].compareAtPrice) : undefined,
+            image: bcProduct.images[0]?.src || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop',
+            category: bcProduct.productType || 'tshirt',
             reason: 'Produit disponible dans notre catalogue'
           }));
 

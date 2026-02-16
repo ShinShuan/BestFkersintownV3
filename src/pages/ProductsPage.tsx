@@ -549,10 +549,10 @@ const ProductsPage: React.FC = () => {
 
     // Filtre par prix
     if (priceRange.min) {
-      filtered = filtered.filter(product => parseFloat(product.variants[0]?.price || '0') >= parseFloat(priceRange.min));
+      filtered = filtered.filter(product => (product.variants[0]?.price || 0) >= parseFloat(priceRange.min));
     }
     if (priceRange.max) {
-      filtered = filtered.filter(product => parseFloat(product.variants[0]?.price || '0') <= parseFloat(priceRange.max));
+      filtered = filtered.filter(product => (product.variants[0]?.price || 0) <= parseFloat(priceRange.max));
     }
 
     // Filtre par disponibilité
@@ -562,8 +562,8 @@ const ProductsPage: React.FC = () => {
 
     // Tri
     filtered.sort((a, b) => {
-      const priceA = parseFloat(a.variants[0]?.price || '0');
-      const priceB = parseFloat(b.variants[0]?.price || '0');
+      const priceA = a.variants[0]?.price || 0;
+      const priceB = b.variants[0]?.price || 0;
 
       switch (sortBy) {
         case 'price-asc':
@@ -682,18 +682,18 @@ const ProductsPage: React.FC = () => {
     const transformedVariants = bcProduct.variants?.map(variant => ({
       id: variant.id,
       title: variant.title,
-      price: parseFloat(variant.price || '0'),
-      compareAtPrice: variant.compareAtPrice ? parseFloat(variant.compareAtPrice) : undefined,
+      price: variant.price || 0,
+      compareAtPrice: variant.compareAtPrice || undefined,
       available: variant.available,
-      options: variant.selectedOptions || []
+      options: variant.options || []
     })) || [];
 
     return {
       id: bcProduct.id,
       title: bcProduct.title,
       description: bcProduct.description,
-      price: parseFloat(bcProduct.variants[0]?.price || '0'),
-      compareAtPrice: bcProduct.variants[0]?.compareAtPrice ? parseFloat(bcProduct.variants[0].compareAtPrice) : undefined,
+      price: bcProduct.variants[0]?.price || 0,
+      compareAtPrice: bcProduct.variants[0]?.compareAtPrice || undefined,
       images: bcProduct.images?.map(img => img.src) || [],
       category: bcProduct.productType,
       tags: bcProduct.tags || [],
@@ -925,7 +925,7 @@ const ProductsPage: React.FC = () => {
                   <ProductTitleLink to={`/product/${product.id.split('/').pop()}`}>
                     <ProductTitle>{product.title}</ProductTitle>
                   </ProductTitleLink>
-                  <ProductPrice>{formatPrice(product.variants[0]?.price || '0')}</ProductPrice>
+                  <ProductPrice>{formatPrice(product.variants[0]?.price?.toString() || '0')}</ProductPrice>
                 </ProductContent>
               </ProductCard>
             ))}

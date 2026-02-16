@@ -26,13 +26,13 @@ export const favoritesService = {
     try {
       // Vérifier d'abord le localStorage
       const localFavorites = this.getLocalFavorites(userId);
-      
+
       // Si on a des favoris locaux, on les retourne
       if (localFavorites.length > 0) {
         return localFavorites;
       }
 
-      // Sinon, essayer de récupérer depuis Shopify (si l'utilisateur est connecté)
+      // Sinon, essayer de récupérer depuis le serveur (si l'utilisateur est connecté)
       if (userId && userId !== 'anonymous') {
         try {
           const response = await axios.get(`${ENV_CONFIG.APP.API_URL}/favorites/${userId}`);
@@ -142,7 +142,7 @@ export const favoritesService = {
       if (!userId || userId === 'anonymous') return;
 
       const localFavorites = this.getLocalFavorites(userId);
-      
+
       // Envoyer les favoris locaux au serveur
       await axios.post(`${ENV_CONFIG.APP.API_URL}/favorites/sync`, {
         userId,
@@ -227,7 +227,7 @@ export const favoritesService = {
     try {
       const keys = Object.keys(localStorage);
       const favoriteKeys = keys.filter(key => key.startsWith('favorites_'));
-      
+
       favoriteKeys.forEach(key => {
         const favorites = JSON.parse(localStorage.getItem(key) || '[]');
         if (favorites.length === 0) {

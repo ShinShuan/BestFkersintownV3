@@ -4,9 +4,6 @@ interface ImportMetaEnv {
   readonly VITE_GOOGLE_CLIENT_ID: string
   readonly VITE_GOOGLE_CLIENT_SECRET: string
   readonly VITE_GOOGLE_REDIRECT_URI: string
-  readonly VITE_SHOPIFY_STORE_URL: string
-  readonly VITE_SHOPIFY_ADMIN_TOKEN: string
-  readonly VITE_SHOPIFY_STOREFRONT_TOKEN: string
   readonly VITE_MAILCHIMP_API_KEY: string
   readonly VITE_MAILCHIMP_LIST_ID: string
   readonly VITE_MAILCHIMP_SERVER_PREFIX: string

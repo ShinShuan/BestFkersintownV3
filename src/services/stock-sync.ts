@@ -8,7 +8,7 @@ export interface StockUpdate {
   newStockLevel: number;
   previousStockLevel: number;
   timestamp: Date;
-  source: 'shopify' | 'frontend' | 'manual';
+  source: 'bigcommerce' | 'frontend' | 'manual';
 }
 
 export interface StockAlert {
@@ -65,12 +65,12 @@ export const stockSyncService = {
     try {
       console.log(`🔄 Synchronisation du stock pour le produit ${productId} (tentative ${retryCount + 1})`);
 
-      // Récupérer les informations actuelles du produit depuis Shopify
-      const shopifyProduct = await productService.getProductById(productId);
+      // Récupérer les informations actuelles du produit depuis BigCommerce
+      const product = await productService.getProductById(productId);
       const updates: StockUpdate[] = [];
 
       // Traiter chaque variante du produit
-      for (const variant of shopifyProduct.variants) {
+      for (const variant of product.variants) {
         const currentStock = variant.inventoryQuantity || 0;
 
         // Vérifier s'il y a eu un changement de stock
@@ -83,7 +83,7 @@ export const stockSyncService = {
             newStockLevel: currentStock,
             previousStockLevel: previousStock,
             timestamp: new Date(),
-            source: 'shopify',
+            source: 'bigcommerce',
           };
 
           updates.push(update);
