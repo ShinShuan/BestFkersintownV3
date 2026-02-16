@@ -26,7 +26,15 @@ export default async function handler(req, res) {
     });
   }
 
-  const bigCommerceUrl = `https://api.bigcommerce.com/stores/${BC_STORE_HASH}/v3/${apiPath}`;
+  // Déterminer la version de l'API et construire l'URL
+  // Si le chemin contient déjà v2 ou v3, on ne le rajoute pas
+  let bigCommerceUrl;
+  if (apiPath.startsWith('v2/') || apiPath.startsWith('v3/')) {
+    bigCommerceUrl = `https://api.bigcommerce.com/stores/${BC_STORE_HASH}/${apiPath}`;
+  } else {
+    // Par défaut, utiliser v3
+    bigCommerceUrl = `https://api.bigcommerce.com/stores/${BC_STORE_HASH}/v3/${apiPath}`;
+  }
 
   try {
     console.log(`Forwarding ${req.method} request to BigCommerce: ${bigCommerceUrl}`);
