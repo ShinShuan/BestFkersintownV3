@@ -28,7 +28,7 @@ export const bigcommerceAPI: AxiosInstance = axios.create({
 
 // Instance pour l'API V2 (certaines fonctionnalités) (via proxy)
 export const bigcommerceAPIv2: AxiosInstance = axios.create({
-  baseURL: `${cleanProxyUrl}/api/bigcommerce/v2`,
+  baseURL: `${PROXY_BASE}/api/bigcommerce/v2`,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
