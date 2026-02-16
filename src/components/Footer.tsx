@@ -174,7 +174,7 @@ const Footer: React.FC = () => {
             </ContactItem>
             <ContactItem>
               <Phone size={16} />
-              +33 1 23 45 67 89
+              +33 6 70 25 86 34
             </ContactItem>
             <SocialLinks>
               <SocialLink href="https://www.instagram.com/bestf.kersintown/" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
@@ -194,6 +194,9 @@ const Footer: React.FC = () => {
           <FooterBottomLinks>
             <BottomLink to="/about">
               {language === 'fr' ? 'Mentions légales' : 'Legal'}
+            </BottomLink>
+            <BottomLink to="/cgv">
+              {language === 'fr' ? 'CGV' : 'Terms & Conditions'}
             </BottomLink>
             <BottomLink to="/commitments">
               {language === 'fr' ? 'Confidentialité' : 'Privacy'}
