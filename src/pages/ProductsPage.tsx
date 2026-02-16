@@ -540,10 +540,8 @@ const ProductsPage: React.FC = () => {
 
     // Filtre par catégorie
     if (selectedCategory !== 'all') {
-      // Les produits BigCommerce ont des IDs de catégories, pas des noms
-      // Pour l'instant, on fait un mapping simple ou on cherche si le nom est contenu dans la catégorie (si c'est une string)
       filtered = filtered.filter(product => {
-        const prodCat = (product.category || '').toLowerCase();
+        const prodCat = (product.productType || '').toLowerCase();
         const selCat = selectedCategory.toLowerCase();
         return prodCat.includes(selCat) || prodCat === selCat;
       });
