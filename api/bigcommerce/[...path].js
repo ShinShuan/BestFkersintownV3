@@ -28,23 +28,34 @@ export default async function handler(req, res) {
 
   // Déterminer la version de l'API et construire l'URL
   // Si le chemin contient déjà v2 ou v3, on ne le rajoute pas
-  let bigCommerceUrl;
+  let baseUrl;
   if (apiPath.startsWith('v2/') || apiPath.startsWith('v3/')) {
-    bigCommerceUrl = `https://api.bigcommerce.com/stores/${BC_STORE_HASH}/${apiPath}`;
+    baseUrl = `https://api.bigcommerce.com/stores/${BC_STORE_HASH}/${apiPath}`;
   } else {
     // Par défaut, utiliser v3
-    bigCommerceUrl = `https://api.bigcommerce.com/stores/${BC_STORE_HASH}/v3/${apiPath}`;
+    baseUrl = `https://api.bigcommerce.com/stores/${BC_STORE_HASH}/v3/${apiPath}`;
   }
 
+  // Ajouter les paramètres de requête au nouvel URL
+  const bigCommerceUrl = new URL(baseUrl);
+  Object.keys(req.query).forEach(key => {
+    if (key !== 'path') {
+      bigCommerceUrl.searchParams.append(key, req.query[key]);
+    }
+  });
+
+  const finalUrl = bigCommerceUrl.toString();
+
   try {
-    console.log(`Forwarding ${req.method} request to BigCommerce: ${bigCommerceUrl}`);
+    console.log(`[Proxy] Forwarding ${req.method} to: ${finalUrl}`);
 
     const fetchOptions = {
       method: req.method,
       headers: {
         'X-Auth-Token': BC_ACCESS_TOKEN,
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'User-Agent': 'Vercel-Proxy-BFIT'
       }
     };
 
@@ -52,30 +63,32 @@ export default async function handler(req, res) {
       fetchOptions.body = JSON.stringify(req.body);
     }
 
-    const response = await fetch(bigCommerceUrl, fetchOptions);
+    const response = await fetch(finalUrl, fetchOptions);
 
-    // Log non-200 responses
-    if (!response.ok) {
-      console.error(`BigCommerce API returned status ${response.status} for ${apiPath}`);
-    }
+    console.log(`[Proxy] BigCommerce responded with status: ${response.status}`);
 
     const contentType = response.headers.get('content-type');
-    let data;
+    let responseData;
 
     if (contentType && contentType.includes('application/json')) {
-      data = await response.json();
+      responseData = await response.json();
     } else {
-      data = await response.text();
+      responseData = await response.text();
+    }
+
+    // Log the error body if not successful
+    if (!response.ok) {
+      console.error(`[Proxy] BigCommerce Error Data:`, JSON.stringify(responseData));
     }
 
     // Transférer le status code de BigCommerce
-    res.status(response.status).json(data);
+    res.status(response.status).json(responseData);
   } catch (error) {
-    console.error('Proxy Error:', error);
+    console.error('[Proxy] Critical Error:', error);
     res.status(500).json({
       error: 'Failed to fetch from BigCommerce API',
       message: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      type: 'PROXY_ERROR'
     });
   }
 }
