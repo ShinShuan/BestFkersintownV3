@@ -15,14 +15,28 @@ export default async function handler(req, res) {
   const { path } = req.query;
   const apiPath = Array.isArray(path) ? path.join('/') : path;
 
-  // Récupérer les variables d'environnement
-  const BC_STORE_HASH = process.env.VITE_BIGCOMMERCE_STORE_HASH;
-  const BC_ACCESS_TOKEN = process.env.VITE_BIGCOMMERCE_ACCESS_TOKEN;
+  // Récupérer et nettoyer les variables d'environnement
+  const BC_STORE_HASH = (process.env.VITE_BIGCOMMERCE_STORE_HASH || '').trim();
+  const BC_ACCESS_TOKEN = (process.env.VITE_BIGCOMMERCE_ACCESS_TOKEN || '').trim();
+
+  // Endpoint de test pour déboguer
+  if (apiPath === 'test-proxy-connection') {
+    return res.status(200).json({
+      status: 'Proxy is alive',
+      storeHashConfigured: !!BC_STORE_HASH,
+      tokenConfigured: !!BC_ACCESS_TOKEN,
+      storeHashLength: BC_STORE_HASH.length,
+      tokenPrefix: BC_ACCESS_TOKEN ? BC_ACCESS_TOKEN.substring(0, 4) + '...' : 'none',
+      nodeVersion: process.version,
+      query: req.query
+    });
+  }
 
   if (!BC_STORE_HASH || !BC_ACCESS_TOKEN) {
     return res.status(500).json({
       error: 'BigCommerce credentials not configured',
-      message: 'Please set VITE_BIGCOMMERCE_STORE_HASH and VITE_BIGCOMMERCE_ACCESS_TOKEN environment variables'
+      message: 'Please set VITE_BIGCOMMERCE_STORE_HASH and VITE_BIGCOMMERCE_ACCESS_TOKEN in Vercel settings',
+      details: { hash: !!BC_STORE_HASH, token: !!BC_ACCESS_TOKEN }
     });
   }
 
