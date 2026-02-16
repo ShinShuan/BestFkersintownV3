@@ -24,6 +24,7 @@ import CommitmentsPage from './pages/CommitmentsPage';
 import VotePage from './pages/VotePage';
 import FavoritesPage from './pages/FavoritesPage';
 import ShopifyCheckoutPage from './pages/ShopifyCheckoutPage';
+import CGVPage from './pages/CGVPage';
 import CheckoutTest from './components/CheckoutTest';
 // import IntegrationTest from './components/IntegrationTest';
 import SimpleCheckout from './components/SimpleCheckout';
@@ -147,6 +148,7 @@ const App: React.FC = () => {
                     <Route path="/commitments" element={<CommitmentsPage />} />
                     <Route path="/vote" element={<VotePage />} />
                     <Route path="/favorites" element={<FavoritesPage />} />
+                    <Route path="/cgv" element={<CGVPage />} />
                     <Route path="/checkout" element={<ShopifyCheckoutPage />} />
                     <Route path="/checkout/:checkoutId" element={<ShopifyCheckoutPage />} />
                     <Route path="/test/checkout" element={<CheckoutTest />} />
