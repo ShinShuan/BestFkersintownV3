@@ -44,15 +44,22 @@ import { stockSyncService } from './services/stock-sync';
 const App: React.FC = () => {
   const { showNewsletterModal, closeNewsletterModal } = useNewsletterModal();
 
-  // Vérifier si le mode admin est activé via URL
+  // Détecter et activer le mode admin via URL immédiatement
+  // On le fait en dehors de useEffect pour éviter les race conditions avec Header
+  if (typeof window !== 'undefined') {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('admin') === 'true') {
+      localStorage.setItem('adminMode', 'true');
+      console.log('🔐 Mode admin activé via URL (synchrone)');
+    }
+  }
+
+  // Nettoyer l'URL
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const adminParam = urlParams.get('admin');
-    if (adminParam === 'true') {
-      localStorage.setItem('adminMode', 'true');
+    if (urlParams.get('admin') === 'true') {
       // Nettoyer l'URL pour ne pas exposer le paramètre
       window.history.replaceState({}, document.title, window.location.pathname);
-      console.log('🔐 Mode admin activé via URL');
     }
   }, []);
 
@@ -61,20 +68,20 @@ const App: React.FC = () => {
     const initializeStockSync = async () => {
       try {
         console.log('🔄 Initialisation de la synchronisation du stock...');
-        
+
         // Démarrer la synchronisation automatique toutes les 15 minutes
         const intervalId = stockSyncService.startAutoSync(15);
-        
+
         // Stocker l'ID de l'intervalle pour pouvoir l'arrêter plus tard
         localStorage.setItem('stockSyncIntervalId', intervalId.toString());
-        
+
         console.log('✅ Synchronisation du stock initialisée');
-        
+
         // Écouter les événements de synchronisation
         const handleStockSyncCompleted = (event: CustomEvent) => {
           const { updates, timestamp, errorCount } = event.detail;
           console.log(`📦 Synchronisation terminée: ${updates.length} mises à jour, ${errorCount} erreurs`);
-          
+
           // Émettre un événement global pour notifier l'application (une seule fois)
           if (updates.length > 0) {
             window.dispatchEvent(new CustomEvent('stockUpdated', {
@@ -86,7 +93,7 @@ const App: React.FC = () => {
         const handleProductsUpdated = (event: CustomEvent) => {
           const { timestamp, syncState } = event.detail;
           console.log('📝 Produits mis à jour:', timestamp, syncState);
-          
+
           // Émettre un événement global pour notifier l'application (une seule fois)
           window.dispatchEvent(new CustomEvent('productsRefreshed', {
             detail: { timestamp, syncState }
@@ -96,13 +103,13 @@ const App: React.FC = () => {
         // Ajouter les écouteurs d'événements
         window.addEventListener('stockSyncCompleted', handleStockSyncCompleted as EventListener);
         window.addEventListener('productsUpdated', handleProductsUpdated as EventListener);
-        
+
         // Nettoyer les écouteurs lors du démontage
         return () => {
           window.removeEventListener('stockSyncCompleted', handleStockSyncCompleted as EventListener);
           window.removeEventListener('productsUpdated', handleProductsUpdated as EventListener);
         };
-        
+
       } catch (error) {
         console.error('❌ Erreur lors de l\'initialisation de la synchronisation du stock:', error);
       }
@@ -151,22 +158,22 @@ const App: React.FC = () => {
                     <Route path="/ultra-simple" element={<UltraSimpleCheckout />} />
                     <Route path="/cart-checkout" element={<SimpleCartCheckout />} />
                     <Route path="/debug-checkout" element={<DebugCartCheckout />} />
-                                          <Route path="/ultra-payment" element={<UltraSimplePayment />} />
-                      <Route path="/product-finder" element={<ProductFinder />} />
-                      <Route path="/bigcommerce-test" element={<BigCommerceTest />} />
-                      {/* <Route path="/production-debug" element={<ProductionDebug />} /> */}
-                      <Route path="/checkout" element={<UltraSimplePayment />} />
-                      <Route path="/checkout/:checkoutId" element={<UltraSimplePayment />} />
+                    <Route path="/ultra-payment" element={<UltraSimplePayment />} />
+                    <Route path="/product-finder" element={<ProductFinder />} />
+                    <Route path="/bigcommerce-test" element={<BigCommerceTest />} />
+                    {/* <Route path="/production-debug" element={<ProductionDebug />} /> */}
+                    <Route path="/checkout" element={<UltraSimplePayment />} />
+                    <Route path="/checkout/:checkoutId" element={<UltraSimplePayment />} />
                   </Routes>
                 </main>
                 <Footer />
                 <Chatbot />
-                <CookieConsent onAccept={() => {}} onDecline={() => {}} />
-                <NewsletterModal 
-                  isOpen={showNewsletterModal} 
-                  onClose={closeNewsletterModal} 
+                <CookieConsent onAccept={() => { }} onDecline={() => { }} />
+                <NewsletterModal
+                  isOpen={showNewsletterModal}
+                  onClose={closeNewsletterModal}
                 />
-        
+
               </div>
             </FavoritesProvider>
           </CartProvider>
