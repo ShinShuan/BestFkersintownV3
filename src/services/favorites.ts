@@ -183,16 +183,20 @@ export const favoritesService = {
   mergeFavorites(localFavorites: Favorite[], serverFavorites: Favorite[]): Favorite[] {
     const merged = new Map<string, Favorite>();
 
+    // Générer une clé unique pour chaque favori (Produit + Variante)
+    const getFavKey = (fav: Favorite) => `${fav.productId}_${fav.variantId || 'default'}`;
+
     // Ajouter les favoris locaux
     localFavorites.forEach(fav => {
-      merged.set(fav.productId, fav);
+      merged.set(getFavKey(fav), fav);
     });
 
     // Ajouter les favoris serveur (priorité aux plus récents)
     serverFavorites.forEach(fav => {
-      const existing = merged.get(fav.productId);
+      const key = getFavKey(fav);
+      const existing = merged.get(key);
       if (!existing || new Date(fav.updatedAt) > new Date(existing.updatedAt)) {
-        merged.set(fav.productId, fav);
+        merged.set(key, fav);
       }
     });
 

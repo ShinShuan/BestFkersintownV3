@@ -8,6 +8,8 @@ import { useFavorites } from '../components/FavoritesProvider';
 import { useLanguage } from '../components/LanguageProvider';
 import { useCart } from '../components/CartProvider';
 import { useNotification } from '../components/NotificationProvider';
+import { productService } from '../services/bigcommerce';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const PageContainer = styled.div`
   max-width: 1200px;
@@ -243,7 +245,7 @@ const CardActionButton = styled.button`
   }
 `;
 
-const LoadingSpinner = styled.div`
+const LoadingWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -283,32 +285,43 @@ const FavoritesPage: React.FC = () => {
     }
   };
 
-  const handleAddToCart = (productId: string, productTitle: string) => {
-    addToCart({
-      id: productId,
-      title: productTitle,
-      price: 0,
-      images: [''],
-      variants: [],
-      description: '',
-      category: '',
-      tags: [],
-      available: true,
-      featured: false,
-      rating: 4.5,
-      reviewCount: 0,
-      likes: 0,
-      isLiked: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }, 1);
-    showNotification({
-      type: 'success',
-      title: language === 'fr' ? 'Succès' : 'Success',
-      message: language === 'fr'
-        ? 'Produit ajouté au panier'
-        : 'Product added to cart'
-    });
+  const [addingToCart, setAddingToCart] = React.useState<Record<string, boolean>>({});
+
+  const handleAddToCart = async (favorite: any) => {
+    const favoriteKey = `${favorite.productId}_${favorite.variantId || 'default'}`;
+    
+    try {
+      setAddingToCart(prev => ({ ...prev, [favoriteKey]: true }));
+      
+      // Récupérer le produit complet pour avoir toutes les infos (variantes, etc.)
+      const product = await productService.getProductById(favorite.productId);
+      
+      if (!product) {
+        throw new Error(language === 'fr' ? 'Produit introuvable' : 'Product not found');
+      }
+
+      // Ajouter au panier avec la variante spécifique
+      await addToCart(product as any, 1, favorite.variantId);
+      
+      showNotification({
+        type: 'success',
+        title: language === 'fr' ? 'Succès' : 'Success',
+        message: language === 'fr'
+          ? `${favorite.productTitle || 'Produit'} ajouté au panier`
+          : `${favorite.productTitle || 'Product'} added to cart`
+      });
+    } catch (error: any) {
+      console.error('Erreur lors de l\'ajout au panier depuis les favoris:', error);
+      showNotification({
+        type: 'error',
+        title: language === 'fr' ? 'Erreur' : 'Error',
+        message: language === 'fr'
+          ? 'Impossible d\'ajouter au panier. Veuillez réessayer.'
+          : 'Could not add to cart. Please try again.'
+      });
+    } finally {
+      setAddingToCart(prev => ({ ...prev, [favoriteKey]: false }));
+    }
   };
 
   const handleClearAll = async () => {
@@ -341,9 +354,9 @@ const FavoritesPage: React.FC = () => {
   if (isLoading) {
     return (
       <PageContainer>
-        <LoadingSpinner>
-          <div>{language === 'fr' ? 'Chargement...' : 'Loading...'}</div>
-        </LoadingSpinner>
+        <LoadingWrapper>
+          <LoadingSpinner text={language === 'fr' ? 'Chargement...' : 'Loading...'} />
+        </LoadingWrapper>
       </PageContainer>
     );
   }
@@ -414,7 +427,7 @@ const FavoritesPage: React.FC = () => {
               </CardImage>
 
               <CardContent>
-                <CardTitle>{favorite.productTitle}</CardTitle>
+                <CardTitle>{favorite.productTitle || (language === 'fr' ? 'Produit BFT' : 'BFT Product')}</CardTitle>
                 {favorite.variantTitle && (
                   <div style={{ fontSize: '0.875rem', color: 'var(--gray-500)', marginBottom: 'var(--spacing-2)' }}>
                     {favorite.variantTitle}
@@ -426,10 +439,17 @@ const FavoritesPage: React.FC = () => {
 
                 <CardActions>
                   <CardActionButton
-                    onClick={() => handleAddToCart(favorite.productId, favorite.productTitle)}
+                    onClick={() => handleAddToCart(favorite)}
+                    disabled={addingToCart[`${favorite.productId}_${favorite.variantId || 'default'}`]}
                   >
-                    <ShoppingCart size={16} />
-                    {language === 'fr' ? 'Ajouter au panier' : 'Add to cart'}
+                    {addingToCart[`${favorite.productId}_${favorite.variantId || 'default'}`] ? (
+                      <LoadingSpinner size="small" />
+                    ) : (
+                      <>
+                        <ShoppingCart size={16} />
+                        {language === 'fr' ? 'Ajouter au panier' : 'Add to cart'}
+                      </>
+                    )}
                   </CardActionButton>
                 </CardActions>
               </CardContent>
