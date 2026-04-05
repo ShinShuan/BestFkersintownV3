@@ -80,9 +80,13 @@ const SectionTitle = styled(motion.h2)`
 
 const VoteGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: var(--spacing-8);
   margin-bottom: var(--spacing-12);
+  
+  @media (max-width: 600px) {
+    gap: var(--spacing-4);
+  }
 `;
 
 const VoteCard = styled(motion.div)`
@@ -636,13 +640,14 @@ const VotePage: React.FC = () => {
           totalVotes={voteState.totalVotes || voteItems.reduce((sum, item) => sum + item.votes, 0)}
           totalVoters={voteState.votedItems.size}
           topVotedItem={(() => {
+            if (voteItems.length === 0) return null;
             const itemsWithVotes = voteItems.map(item => ({
               ...item,
               currentVotes: getVoteCount(item.id)
             }));
             const topItem = itemsWithVotes.reduce((max, item) => 
               item.currentVotes > max.currentVotes ? item : max
-            );
+            , itemsWithVotes[0]);
             const totalVotes = itemsWithVotes.reduce((sum, item) => sum + item.currentVotes, 0);
             return {
               title: topItem.title,

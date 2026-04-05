@@ -91,6 +91,11 @@ const FiltersSection = styled.div`
   box-shadow: var(--shadow-lg);
   margin-bottom: var(--spacing-10);
   border: 1px solid var(--gray-100);
+  
+  @media (max-width: 768px) {
+    padding: var(--spacing-4);
+    margin-bottom: var(--spacing-6);
+  }
 `;
 
 const FiltersRow = styled.div`
@@ -98,9 +103,13 @@ const FiltersRow = styled.div`
   grid-template-columns: repeat(3, 1fr);
   gap: var(--spacing-8);
   
-  @media (max-width: 768px) {
+  @media (max-width: 900px) {
     grid-template-columns: 1fr;
-    gap: var(--spacing-6);
+    gap: var(--spacing-4);
+  }
+  
+  &:not(:last-child) {
+    margin-bottom: var(--spacing-6);
   }
 `;
 
@@ -162,11 +171,22 @@ const PriceSeparator = styled.span`
   font-size: var(--font-size-lg);
 `;
 
+const CheckboxLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: var(--font-size-base);
+  color: var(--gray-700);
+  cursor: pointer;
+  margin-top: var(--spacing-1);
+`;
+
 const FilterCheckbox = styled.input`
-  width: 24px;
-  height: 24px;
+  width: 18px;
+  height: 18px;
   accent-color: #d13296;
   cursor: pointer;
+  margin: 0;
 `;
 
 const ResultsInfo = styled.div`
@@ -483,6 +503,7 @@ const ProductsPage: React.FC = () => {
 
   // États pour les filtres
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCommunity, setSelectedCommunity] = useState<string>('all');
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
   const [sortBy, setSortBy] = useState<string>('name');
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
@@ -534,7 +555,6 @@ const ProductsPage: React.FC = () => {
     loadProducts();
   }, [loadProducts]);
 
-  // Appliquer les filtres
   useEffect(() => {
     let filtered = [...products];
 
@@ -543,7 +563,29 @@ const ProductsPage: React.FC = () => {
       filtered = filtered.filter(product => {
         const prodCat = (product.productType || '').toLowerCase();
         const selCat = selectedCategory.toLowerCase();
-        return prodCat.includes(selCat) || prodCat === selCat;
+        const title = product.title.toLowerCase();
+        const tags = (product.tags || []).join(' ').toLowerCase();
+
+        if (prodCat.includes(selCat) || prodCat === selCat) return true;
+
+        if (selCat === 'teeshirt') {
+          return title.includes('tee') || title.includes('t-shirt') || tags.includes('tee') || tags.includes('t-shirt');
+        }
+        if (selCat === 'sous-vêtement') {
+          return title.includes('under') || title.includes('sous-vêtement') || tags.includes('under') || tags.includes('slip') || tags.includes('boxer');
+        }
+
+        return false;
+      });
+    }
+
+    // Filtre par communauté (tags)
+    if (selectedCommunity !== 'all') {
+      filtered = filtered.filter(product => {
+        const title = product.title.toLowerCase();
+        const tags = (product.tags || []).join(' ').toLowerCase();
+        const community = selectedCommunity.toLowerCase();
+        return title.includes(community) || tags.includes(community);
       });
     }
 
@@ -580,7 +622,7 @@ const ProductsPage: React.FC = () => {
     });
 
     setFilteredProducts(filtered);
-  }, [products, selectedCategory, priceRange, sortBy, showAvailableOnly]);
+  }, [products, selectedCategory, selectedCommunity, priceRange, sortBy, showAvailableOnly]);
 
   // Gerer l'ajout au panier
   const handleAddToCart = async (product: NormalizedProduct) => {
@@ -782,7 +824,13 @@ const ProductsPage: React.FC = () => {
                 <option value="all">
                   {language === 'fr' ? 'Toutes les catégories' : 'All categories'}
                 </option>
-                <option value="vêtements">{language === 'fr' ? 'Vêtements' : 'Clothing'}</option>
+                <option value="vêtements">{language === 'fr' ? 'Vêtements (Tous)' : 'Clothing (All)'}</option>
+                <option value="teeshirt">{language === 'fr' ? 'T-shirts' : 'T-shirts'}</option>
+                <option value="sous-vêtement">{language === 'fr' ? 'Sous-vêtements' : 'Underwear'}</option>
+                <option value="hauts">{language === 'fr' ? 'Vêtements : Hauts' : 'Clothing: Tops'}</option>
+                <option value="bas">{language === 'fr' ? 'Vêtements : Bas' : 'Clothing: Bottoms'}</option>
+                <option value="robes">{language === 'fr' ? 'Vêtements : Robes' : 'Clothing: Dresses'}</option>
+                <option value="vestes">{language === 'fr' ? 'Vêtements : Vestes' : 'Clothing: Jackets'}</option>
                 <option value="accessoires">{language === 'fr' ? 'Accessoires' : 'Accessories'}</option>
                 <option value="chaussures">{language === 'fr' ? 'Chaussures' : 'Shoes'}</option>
                 <option value="maquillage">{language === 'fr' ? 'Maquillage' : 'Makeup'}</option>
@@ -809,6 +857,19 @@ const ProductsPage: React.FC = () => {
             </FilterGroup>
 
             <FilterGroup>
+              <FilterLabel>{language === 'fr' ? 'Communauté' : 'Community'}</FilterLabel>
+              <FilterSelect
+                 value={selectedCommunity}
+                 onChange={(e) => setSelectedCommunity(e.target.value)}
+              >
+                <option value="all">{language === 'fr' ? 'Toutes' : 'All'}</option>
+                <option value="GG">GG (Gay Gamer)</option>
+                <option value="LL">LL (Lovely Lady)</option>
+                <option value="BFT">BFT (Best F.kers)</option>
+              </FilterSelect>
+            </FilterGroup>
+
+            <FilterGroup>
               <FilterLabel>{language === 'fr' ? 'Trier par' : 'Sort by'}</FilterLabel>
               <FilterSelect
                 value={sortBy}
@@ -824,14 +885,14 @@ const ProductsPage: React.FC = () => {
 
           <FiltersRow>
             <FilterGroup>
-              <label>
+              <CheckboxLabel>
                 <FilterCheckbox
                   type="checkbox"
                   checked={showAvailableOnly}
                   onChange={(e) => setShowAvailableOnly(e.target.checked)}
                 />
                 {language === 'fr' ? 'En stock uniquement' : 'In stock only'}
-              </label>
+              </CheckboxLabel>
             </FilterGroup>
 
             <FilterGroup>

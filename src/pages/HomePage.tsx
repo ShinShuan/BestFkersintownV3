@@ -23,6 +23,11 @@ const HeroSection = styled.section`
   justify-content: center;
   background: var(--white);
   overflow: hidden;
+  
+  @media (max-width: 768px) {
+    height: 50vh;
+    min-height: 350px;
+  }
 `;
 
 const HeroBackground = styled.div`
@@ -35,6 +40,10 @@ const HeroBackground = styled.div`
   z-index: 1;
   transform: translateZ(0);
   will-change: transform;
+  
+  @media (max-width: 768px) {
+    background-position: center 25%;
+  }
 `;
 
 const HeroContent = styled.div`
@@ -456,10 +465,15 @@ const BannerStrip = styled.div`
   background: linear-gradient(135deg, #d13296 0%, #d13296 100%);
   color: var(--white);
   text-align: center;
-  padding: var(--spacing-3) 0;
+  padding: var(--spacing-4) var(--spacing-2);
   font-weight: var(--font-semibold);
   font-size: var(--font-size-lg);
   box-shadow: var(--shadow-md);
+  
+  @media (max-width: 480px) {
+    font-size: var(--font-size-base);
+    padding: var(--spacing-3) var(--spacing-2);
+  }
 `;
 
 const ContentBelowBanner = styled.div`

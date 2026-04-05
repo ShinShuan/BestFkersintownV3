@@ -8,10 +8,10 @@ export const useNewsletterModal = () => {
     const hasSeenModal = localStorage.getItem('newsletter_modal_seen');
     
     if (!hasSeenModal) {
-      // Attendre 3 secondes avant d'afficher le modal
+      // Attendre 25 secondes avant d'afficher le modal
       const timer = setTimeout(() => {
         setShowNewsletterModal(true);
-      }, 3000);
+      }, 25000);
 
       return () => clearTimeout(timer);
     }

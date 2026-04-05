@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { favoritesService, FavoritesState } from '../services/favorites';
+import { useLanguage } from './LanguageProvider';
 import { useAuth } from './AuthProvider';
 import { useNotification } from './NotificationProvider';
 
@@ -26,29 +27,21 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
   });
 
   const { user, isAuthenticated } = useAuth();
+  const { language } = useLanguage();
   const { showNotification } = useNotification();
 
-  // Charger les favoris quand l'utilisateur se connecte
+  // Charger les favoris au montage ou quand l'utilisateur change
   useEffect(() => {
-    if (user && isAuthenticated) {
-      loadFavorites();
-    } else {
-      // Réinitialiser les favoris quand l'utilisateur se déconnecte
-      setFavoritesState({
-        favorites: [],
-        isLoading: false,
-        error: null
-      });
-    }
+    loadFavorites();
   }, [user]);
 
   // Charger les favoris
   const loadFavorites = async (): Promise<void> => {
-    if (!user) return;
+    const userId = user?.id || 'anonymous';
 
     try {
       setFavoritesState(prev => ({ ...prev, isLoading: true, error: null }));
-      const favorites = await favoritesService.getUserFavorites(user.id);
+      const favorites = await favoritesService.getUserFavorites(userId);
       setFavoritesState({
         favorites,
         isLoading: false,
@@ -66,19 +59,12 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
 
   // Ajouter un produit aux favoris
   const addFavorite = async (productId: string): Promise<void> => {
-    if (!user) {
-      showNotification({
-        type: 'warning',
-        title: 'Connexion requise',
-        message: 'Vous devez être connecté pour ajouter des favoris'
-      });
-      return;
-    }
+    const userId = user?.id || 'anonymous';
 
     try {
       setFavoritesState(prev => ({ ...prev, isLoading: true, error: null }));
 
-      const newFavorite = await favoritesService.addToFavorites(user.id, { id: productId, title: '', image: '', price: '' });
+      const newFavorite = await favoritesService.addToFavorites(userId, { id: productId, title: '', image: '', price: '' });
 
       setFavoritesState(prev => ({
         ...prev,
@@ -89,8 +75,8 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
 
       showNotification({
         type: 'success',
-        title: 'Succès',
-        message: 'Produit ajouté aux favoris'
+        title: language === 'fr' ? 'Succès' : 'Success',
+        message: language === 'fr' ? 'Produit ajouté aux favoris' : 'Product added to favorites'
       });
     } catch (error) {
       console.error('Erreur lors de l\'ajout du favori:', error);
@@ -101,20 +87,20 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
       }));
       showNotification({
         type: 'error',
-        title: 'Erreur',
-        message: 'Erreur lors de l\'ajout du favori'
+        title: language === 'fr' ? 'Erreur' : 'Error',
+        message: language === 'fr' ? 'Erreur lors de l\'ajout du favori' : 'Error while adding to favorites'
       });
     }
   };
 
   // Supprimer un produit des favoris
   const removeFavorite = async (productId: string): Promise<void> => {
-    if (!user) return;
+    const userId = user?.id || 'anonymous';
 
     try {
       setFavoritesState(prev => ({ ...prev, isLoading: true, error: null }));
 
-      await favoritesService.removeFromFavorites(user.id, productId);
+      await favoritesService.removeFromFavorites(userId, productId);
 
       setFavoritesState(prev => ({
         ...prev,
@@ -125,8 +111,8 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
 
       showNotification({
         type: 'success',
-        title: 'Succès',
-        message: 'Produit retiré des favoris'
+        title: language === 'fr' ? 'Succès' : 'Success',
+        message: language === 'fr' ? 'Produit retiré des favoris' : 'Product removed from favorites'
       });
     } catch (error) {
       console.error('Erreur lors de la suppression du favori:', error);
@@ -137,8 +123,8 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
       }));
       showNotification({
         type: 'error',
-        title: 'Erreur',
-        message: 'Erreur lors de la suppression du favori'
+        title: language === 'fr' ? 'Erreur' : 'Error',
+        message: language === 'fr' ? 'Erreur lors de la suppression du favori' : 'Error while removing from favorites'
       });
     }
   };
@@ -155,12 +141,12 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
 
   // Supprimer tous les favoris
   const clearAllFavorites = async (): Promise<void> => {
-    if (!user) return;
+    const userId = user?.id || 'anonymous';
 
     try {
       setFavoritesState(prev => ({ ...prev, isLoading: true, error: null }));
 
-      await favoritesService.clearAllFavorites(user.id);
+      await favoritesService.clearAllFavorites(userId);
 
       setFavoritesState({
         favorites: [],
@@ -170,8 +156,8 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
 
       showNotification({
         type: 'success',
-        title: 'Succès',
-        message: 'Tous les favoris ont été supprimés'
+        title: language === 'fr' ? 'Succès' : 'Success',
+        message: language === 'fr' ? 'Tous les favoris ont été supprimés' : 'All favorites have been removed'
       });
     } catch (error) {
       console.error('Erreur lors de la suppression de tous les favoris:', error);
@@ -182,8 +168,8 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
       }));
       showNotification({
         type: 'error',
-        title: 'Erreur',
-        message: 'Erreur lors de la suppression de tous les favoris'
+        title: language === 'fr' ? 'Erreur' : 'Error',
+        message: language === 'fr' ? 'Erreur lors de la suppression de tous les favoris' : 'Error while removing all favorites'
       });
     }
   };

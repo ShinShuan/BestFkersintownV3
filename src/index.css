@@ -309,3 +309,43 @@ button:hover, a:hover {
 .z-50 {
   z-index: 50;
 }
+
+/* Media Queries pour la Responsivité */
+
+@media (max-width: 768px) {
+  :root {
+    --font-size-3xl: 1.5rem;
+    --font-size-4xl: 2rem;
+    --font-size-5xl: 2.5rem;
+    --spacing-12: 2rem;
+    --spacing-16: 3rem;
+    --spacing-20: 3.5rem;
+  }
+
+  .container {
+    padding-left: var(--spacing-4);
+    padding-right: var(--spacing-4);
+  }
+
+  h1 { font-size: var(--font-size-3xl); }
+  h2 { font-size: var(--font-size-2xl); }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --font-size-base: 0.9375rem;
+  }
+
+  .flex-mobile-col {
+    flex-direction: column;
+  }
+
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+/* Fix pour Safari mobile (vh issues) */
+.min-h-screen-ios {
+  min-height: -webkit-fill-available;
+}

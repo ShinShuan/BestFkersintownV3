@@ -259,23 +259,15 @@ const FavoritesPage: React.FC = () => {
   const { showNotification } = useNotification();
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      showNotification({
-        type: 'warning',
-        title: language === 'fr' ? 'Connexion requise' : 'Sign in required',
-        message: language === 'fr'
-          ? 'Connectez-vous à votre compte pour voir vos favoris'
-          : 'Sign in to your account to view your favorites'
-      });
-    }
-  }, [isAuthenticated, language, showNotification]);
+    // Les favoris sont maintenant accessibles sans connexion
+  }, [language, showNotification]);
 
   const handleRemoveFavorite = async (productId: string) => {
     try {
       await removeFavorite(productId);
       showNotification({
         type: 'success',
-        title: 'Succès',
+        title: language === 'fr' ? 'Succès' : 'Success',
         message: language === 'fr'
           ? 'Produit retiré des favoris'
           : 'Product removed from favorites'
@@ -283,7 +275,7 @@ const FavoritesPage: React.FC = () => {
     } catch (error) {
       showNotification({
         type: 'error',
-        title: 'Erreur',
+        title: language === 'fr' ? 'Erreur' : 'Error',
         message: language === 'fr'
           ? 'Erreur lors de la suppression'
           : 'Error removing favorite'
@@ -295,7 +287,7 @@ const FavoritesPage: React.FC = () => {
     addToCart({
       id: productId,
       title: productTitle,
-      price: 0, // Prix à récupérer depuis l'API
+      price: 0,
       images: [''],
       variants: [],
       description: '',
@@ -312,7 +304,7 @@ const FavoritesPage: React.FC = () => {
     }, 1);
     showNotification({
       type: 'success',
-      title: 'Succès',
+      title: language === 'fr' ? 'Succès' : 'Success',
       message: language === 'fr'
         ? 'Produit ajouté au panier'
         : 'Product added to cart'
@@ -329,7 +321,7 @@ const FavoritesPage: React.FC = () => {
         await clearAllFavorites();
         showNotification({
           type: 'success',
-          title: 'Succès',
+          title: language === 'fr' ? 'Succès' : 'Success',
           message: language === 'fr'
             ? 'Tous les favoris ont été supprimés'
             : 'All favorites have been removed'
@@ -337,7 +329,7 @@ const FavoritesPage: React.FC = () => {
       } catch (error) {
         showNotification({
           type: 'error',
-          title: 'Erreur',
+          title: language === 'fr' ? 'Erreur' : 'Error',
           message: language === 'fr'
             ? 'Erreur lors de la suppression'
             : 'Error removing favorites'
@@ -350,32 +342,8 @@ const FavoritesPage: React.FC = () => {
     return (
       <PageContainer>
         <LoadingSpinner>
-          <div>Chargement...</div>
+          <div>{language === 'fr' ? 'Chargement...' : 'Loading...'}</div>
         </LoadingSpinner>
-      </PageContainer>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <PageContainer>
-        <EmptyState
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <EmptyIcon>
-            <Heart size={40} />
-          </EmptyIcon>
-          <EmptyTitle>
-            {language === 'fr' ? 'Connectez-vous' : 'Sign in'}
-          </EmptyTitle>
-          <EmptyDescription>
-            {language === 'fr'
-              ? 'Connectez-vous pour voir et gérer vos produits favoris'
-              : 'Sign in to view and manage your favorite products'
-            }
-          </EmptyDescription>
-        </EmptyState>
       </PageContainer>
     );
   }
