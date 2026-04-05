@@ -684,18 +684,23 @@ const ProductsPage: React.FC = () => {
         await removeFavorite(product.id);
         showNotification({
           type: 'info',
-          title: language === 'fr' ? 'Retire des favoris' : 'Removed from favorites',
+          title: language === 'fr' ? 'Retiré des favoris' : 'Removed from favorites',
           message: language === 'fr'
-            ? `${product.title} a ete retire des favoris`
+            ? `${product.title} a été retiré des favoris`
             : `${product.title} has been removed from favorites`
         });
       } else {
-        await addFavorite(product.id);
+        await addFavorite({
+          id: product.id.toString(),
+          title: product.title,
+          image: product.images[0]?.src || '',
+          price: product.variants[0]?.price.toString() || '0'
+        });
         showNotification({
           type: 'success',
-          title: language === 'fr' ? 'Ajoute aux favoris' : 'Added to favorites',
+          title: language === 'fr' ? 'Ajouté aux favoris' : 'Added to favorites',
           message: language === 'fr'
-            ? `${product.title} a ete ajoute aux favoris`
+            ? `${product.title} a été ajouté aux favoris`
             : `${product.title} has been added to favorites`
         });
       }

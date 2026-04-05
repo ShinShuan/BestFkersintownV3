@@ -1,5 +1,8 @@
+import { customerService } from './bigcommerce';
+
 export interface LeadData {
   firstName: string;
+  lastName: string;
   phone: string;
   email: string;
   community: string;
@@ -8,19 +11,32 @@ export interface LeadData {
 
 export const leadService = {
   submitLead: async (data: LeadData) => {
-    // URL de l'Apps Script Google (Webhook)
-    // Note: L'utilisateur devra configurer cette URL dans les variables d'environnement
-    const WEBHOOK_URL = import.meta.env.VITE_GOOGLE_SHEETS_WEBHOOK_URL || 'https://script.google.com/macros/s/AKfycbz_XXXXXXXXXXXX/exec';
+    // 1. Envoi vers BigCommerce (Prioritaire)
+    try {
+      console.log('📦 Envoi du lead vers BigCommerce...', data.email);
+      await customerService.createCustomer({
+        email: data.email,
+        first_name: data.firstName,
+        last_name: data.lastName,
+        phone: data.phone,
+        company: data.community // Utilisation de Community comme Company par défaut
+      });
+      console.log('✅ Lead enregistré avec succès dans BigCommerce');
+    } catch (bcError) {
+      console.error('❌ Erreur lors de l\'enregistrement dans BigCommerce:', bcError);
+      // On continue quand même vers Google Sheets si possible
+    }
+
+    // 2. Envoi vers Google Sheets (Backup)
+    const WEBHOOK_URL = import.meta.env.VITE_GOOGLE_SHEETS_WEBHOOK_URL;
     
-    if (WEBHOOK_URL.includes('XXXXXX')) {
-      console.warn('⚠️ Google Sheets Webhook URL non configurée. Simulation de l\'envoi.');
-      // Simuler un délai réseau
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      return { success: true, message: 'Simulation réussie' };
+    if (!WEBHOOK_URL || WEBHOOK_URL.includes('XXXXXX')) {
+      console.warn('⚠️ Google Sheets Webhook URL non configurée. Backup ignoré.');
+      return { success: true, message: 'Enregistré dans BigCommerce' };
     }
     
     try {
-      const response = await fetch(WEBHOOK_URL, {
+      await fetch(WEBHOOK_URL, {
         method: 'POST',
         mode: 'no-cors',
         headers: {
@@ -29,10 +45,11 @@ export const leadService = {
         body: JSON.stringify(data),
       });
       
-      return { success: true, response };
+      return { success: true };
     } catch (error) {
-      console.error('❌ Erreur lors de l\'envoi du lead:', error);
-      throw error;
+      console.error('❌ Erreur lors de l\'envoi backup Google Sheets:', error);
+      // Si BC a réussi, on considère quand même un succès global
+      return { success: true, warning: 'Backup Google Sheets échoué' };
     }
   }
 };

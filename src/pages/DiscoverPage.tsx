@@ -265,6 +265,7 @@ const DiscoverPage: React.FC = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
+    lastName: '',
     phone: '',
     email: '',
     community: 'GG'
@@ -303,7 +304,7 @@ const DiscoverPage: React.FC = () => {
       
       await leadService.submitLead(data);
       setIsSuccess(true);
-      setFormData({ firstName: '', phone: '', email: '', community: 'GG' });
+      setFormData({ firstName: '', lastName: '', phone: '', email: '', community: 'GG' });
     } catch (error) {
       alert(language === 'fr' ? 'Une erreur est survenue.' : 'An error occurred.');
     } finally {
@@ -404,6 +405,16 @@ const DiscoverPage: React.FC = () => {
                         placeholder={language === 'fr' ? 'Votre prénom' : 'Your first name'}
                         value={formData.firstName}
                         onChange={e => setFormData({...formData, firstName: e.target.value})}
+                      />
+                    </InputGroup>
+
+                    <InputGroup>
+                      <Label>{language === 'fr' ? 'Nom' : 'Last Name'}</Label>
+                      <Input 
+                        required
+                        placeholder={language === 'fr' ? 'Votre nom' : 'Your last name'}
+                        value={formData.lastName}
+                        onChange={e => setFormData({...formData, lastName: e.target.value})}
                       />
                     </InputGroup>
                     

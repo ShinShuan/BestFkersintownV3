@@ -19,6 +19,7 @@ import { useNotification } from '../components/NotificationProvider';
 import Container from '../components/Container';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { productService, NormalizedProduct as ProductType } from '../services/bigcommerce';
+import { useFavorites } from '../components/FavoritesProvider';
 
 const ProductDetailPage: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
@@ -26,6 +27,7 @@ const ProductDetailPage: React.FC = () => {
   const { language } = useLanguage();
   const { addToCart } = useCart();
   const { showNotification } = useNotification();
+  const { addFavorite, removeFavorite, isFavorite } = useFavorites();
 
   const [product, setProduct] = useState<ProductType | null>(null);
   const [loading, setLoading] = useState(true);
@@ -33,7 +35,6 @@ const ProductDetailPage: React.FC = () => {
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isLiked, setIsLiked] = useState(false);
 
   useEffect(() => {
     const loadProduct = async () => {
@@ -200,8 +201,23 @@ const ProductDetailPage: React.FC = () => {
             <ImageContainer>
               <ProductImage src={currentImage} alt={product.title} />
               <ImageOverlay>
-                <ActionButton onClick={() => setIsLiked(!isLiked)}>
-                  <Heart size={24} fill={isLiked ? '#d13296' : 'none'} />
+                <ActionButton onClick={async () => {
+                  const pid = product.id.toString();
+                  const vid = selectedVariant?.id;
+                  if (isFavorite(pid, vid)) {
+                    await removeFavorite(pid, vid);
+                  } else {
+                    await addFavorite({
+                      id: pid,
+                      variantId: vid,
+                      title: product.title,
+                      variantTitle: selectedVariant?.title,
+                      image: product.images[0]?.src,
+                      price: selectedVariant?.price.toString()
+                    });
+                  }
+                }}>
+                  <Heart size={24} fill={isFavorite(product.id.toString(), selectedVariant?.id) ? '#d13296' : 'none'} />
                 </ActionButton>
               </ImageOverlay>
 

@@ -5,9 +5,16 @@ import { useAuth } from './AuthProvider';
 import { useNotification } from './NotificationProvider';
 
 interface FavoritesContextType extends FavoritesState {
-  addFavorite: (productId: string) => Promise<void>;
-  removeFavorite: (productId: string) => Promise<void>;
-  isFavorite: (productId: string) => boolean;
+  addFavorite: (product: {
+    id: string;
+    variantId?: string;
+    title: string;
+    variantTitle?: string;
+    image?: string;
+    price?: string;
+  }) => Promise<void>;
+  removeFavorite: (productId: string, variantId?: string) => Promise<void>;
+  isFavorite: (productId: string, variantId?: string) => boolean;
   getFavoritesCount: () => number;
   clearAllFavorites: () => Promise<void>;
   refreshFavorites: () => Promise<void>;
@@ -58,13 +65,20 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
   };
 
   // Ajouter un produit aux favoris
-  const addFavorite = async (productId: string): Promise<void> => {
+  const addFavorite = async (product: {
+    id: string;
+    variantId?: string;
+    title: string;
+    variantTitle?: string;
+    image?: string;
+    price?: string;
+  }): Promise<void> => {
     const userId = user?.id || 'anonymous';
 
     try {
       setFavoritesState(prev => ({ ...prev, isLoading: true, error: null }));
 
-      const newFavorite = await favoritesService.addToFavorites(userId, { id: productId, title: '', image: '', price: '' });
+      const newFavorite = await favoritesService.addToFavorites(userId, product);
 
       setFavoritesState(prev => ({
         ...prev,
@@ -85,32 +99,32 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
         isLoading: false,
         error: 'Erreur lors de l\'ajout du favori'
       }));
-      showNotification({
-        type: 'error',
-        title: language === 'fr' ? 'Erreur' : 'Error',
-        message: language === 'fr' ? 'Erreur lors de l\'ajout du favori' : 'Error while adding to favorites'
-      });
     }
   };
 
   // Supprimer un produit des favoris
-  const removeFavorite = async (productId: string): Promise<void> => {
+  const removeFavorite = async (productId: string, variantId?: string): Promise<void> => {
     const userId = user?.id || 'anonymous';
 
     try {
       setFavoritesState(prev => ({ ...prev, isLoading: true, error: null }));
 
-      await favoritesService.removeFromFavorites(userId, productId);
+      await favoritesService.removeFromFavorites(userId, productId, variantId);
 
       setFavoritesState(prev => ({
         ...prev,
-        favorites: prev.favorites.filter(fav => fav.productId !== productId),
+        favorites: prev.favorites.filter(fav => {
+          if (variantId) {
+            return !(fav.productId === productId && fav.variantId === variantId);
+          }
+          return fav.productId !== productId;
+        }),
         isLoading: false,
         error: null
       }));
 
       showNotification({
-        type: 'success',
+        type: 'info',
         title: language === 'fr' ? 'Succès' : 'Success',
         message: language === 'fr' ? 'Produit retiré des favoris' : 'Product removed from favorites'
       });
@@ -121,16 +135,14 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
         isLoading: false,
         error: 'Erreur lors de la suppression du favori'
       }));
-      showNotification({
-        type: 'error',
-        title: language === 'fr' ? 'Erreur' : 'Error',
-        message: language === 'fr' ? 'Erreur lors de la suppression du favori' : 'Error while removing from favorites'
-      });
     }
   };
 
   // Vérifier si un produit est dans les favoris
-  const isFavorite = (productId: string): boolean => {
+  const isFavorite = (productId: string, variantId?: string): boolean => {
+    if (variantId) {
+      return favoritesState.favorites.some(fav => fav.productId === productId && fav.variantId === variantId);
+    }
     return favoritesState.favorites.some(fav => fav.productId === productId);
   };
 

@@ -262,9 +262,9 @@ const FavoritesPage: React.FC = () => {
     // Les favoris sont maintenant accessibles sans connexion
   }, [language, showNotification]);
 
-  const handleRemoveFavorite = async (productId: string) => {
+  const handleRemoveFavorite = async (productId: string, variantId?: string) => {
     try {
-      await removeFavorite(productId);
+      await removeFavorite(productId, variantId);
       showNotification({
         type: 'success',
         title: language === 'fr' ? 'Succès' : 'Success',
@@ -405,7 +405,7 @@ const FavoritesPage: React.FC = () => {
               <CardImage $imageUrl={favorite.productImage || '/placeholder-image.jpg'}>
                 <CardOverlay>
                   <CardButton
-                    onClick={() => handleRemoveFavorite(favorite.productId)}
+                    onClick={() => handleRemoveFavorite(favorite.productId, favorite.variantId)}
                     title={language === 'fr' ? 'Retirer des favoris' : 'Remove from favorites'}
                   >
                     <Trash2 size={16} />
@@ -415,7 +415,14 @@ const FavoritesPage: React.FC = () => {
 
               <CardContent>
                 <CardTitle>{favorite.productTitle}</CardTitle>
-                <CardPrice>Prix à récupérer</CardPrice>
+                {favorite.variantTitle && (
+                  <div style={{ fontSize: '0.875rem', color: 'var(--gray-500)', marginBottom: 'var(--spacing-2)' }}>
+                    {favorite.variantTitle}
+                  </div>
+                )}
+                <CardPrice>
+                  {favorite.productPrice ? `€${parseFloat(favorite.productPrice).toFixed(2)}` : 'N/A'}
+                </CardPrice>
 
                 <CardActions>
                   <CardActionButton
