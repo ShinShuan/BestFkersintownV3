@@ -13,11 +13,7 @@ export default defineConfig({
     assetsDir: 'assets',
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          router: ['react-router-dom'],
-          ui: ['framer-motion', 'lucide-react']
-        }
+        // Single bundle is easier for Stencil Shell integration
       }
     }
   }

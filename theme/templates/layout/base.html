@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html class="no-js" lang="{{ locale_name }}">
+    <head>
+        <title>{{ head.title }}</title>
+        {{{ head.scripts }}}
+        {{{ head.meta_tags }}}
+        <link rel="stylesheet" href="{{cdn 'assets/scss/theme-bundle.css'}}">
+        <style>
+            /* Custom additions for Stencil Shell */
+            #bfit-app-root { min-height: 100vh; }
+        </style>
+        <script>
+            window.BC_ASSETS_URL = "{{cdn 'assets/'}}";
+        </script>
+    </head>
+    <body>
+        <div id="bfit-app-root">
+            {{#block "page"}}
+            {{/block}}
+        </div>
+        
+        {{!-- Inject React App scripts from CDN or Local assets --}}
+        <script src="{{cdn 'assets/js/app-bundle.js'}}"></script>
+    </body>
+</html>

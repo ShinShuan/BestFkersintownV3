@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Design Settings",
+    "settings": [
+      {
+        "type": "heading",
+        "content": "Theme Colors"
+      },
+      {
+        "type": "color",
+        "label": "Primary Color",
+        "id": "color-primary",
+        "default": "#d13296"
+      }
+    ]
+  }
+]

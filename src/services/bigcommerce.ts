@@ -363,18 +363,21 @@ function normalizeProduct(product: BigCommerceProduct): NormalizedProduct {
       src: img.url_standard || img.url_zoom || img.image_file,
       altText: img.description || product.name
     })),
-    variants: (product.variants || []).map(variant => ({
-      id: variant.id.toString(),
-      title: variant.option_values?.map(ov => ov.label).join(' / ') || 'Default',
-      price: parseFloat((variant.calculated_price || variant.price || product.price).toString()),
-      compareAtPrice: variant.retail_price ? parseFloat(variant.retail_price.toString()) : null,
-      available: !variant.purchasing_disabled && variant.inventory_level > 0,
-      inventoryQuantity: variant.inventory_level,
-      options: (variant.option_values || []).map(ov => ({
-        name: ov.option_display_name,
-        value: ov.label
-      }))
-    })),
+    variants: (product.variants || []).map(variant => {
+      const isTracking = product.inventory_tracking && product.inventory_tracking !== 'none';
+      return {
+        id: variant.id.toString(),
+        title: variant.option_values?.map(ov => ov.label).join(' / ') || 'Default',
+        price: parseFloat((variant.calculated_price || variant.price || product.price).toString()),
+        compareAtPrice: variant.retail_price ? parseFloat(variant.retail_price.toString()) : null,
+        available: !variant.purchasing_disabled && (!isTracking || variant.inventory_level > 0),
+        inventoryQuantity: variant.inventory_level,
+        options: (variant.option_values || []).map(ov => ({
+          name: ov.option_display_name,
+          value: ov.label
+        }))
+      };
+    }),
     tags: product.custom_fields?.filter(cf => cf.name === 'tag').map(cf => cf.value) || [],
     productType: product.categories?.[0]?.toString() || '',
     vendor: product.brand_id?.toString() || '',

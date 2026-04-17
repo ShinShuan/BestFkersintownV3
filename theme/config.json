@@ -1,0 +1,24 @@
+{
+  "name": "BFIT Storefront",
+  "version": "1.0.0",
+  "meta": {
+    "price": 0,
+    "author": "BFIT",
+    "documentation": "https://developer.bigcommerce.com/stencil-docs/"
+  },
+  "settings": {
+    "font-family": "Outfit, sans-serif",
+    "color-primary": "#d13296",
+    "color-secondary": "#a8287a"
+  },
+  "variations": [
+    {
+      "name": "Standard",
+      "id": "standard",
+      "meta": {
+        "desktop_screenshot": "screenshot-standard.png",
+        "mobile_screenshot": "screenshot-standard.png"
+      }
+    }
+  ]
+}

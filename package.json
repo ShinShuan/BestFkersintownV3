@@ -8,6 +8,7 @@
     "server": "node server/proxy.js",
     "dev:all": "concurrently \"npm run dev\" \"npm run server\"",
     "build": "tsc && vite build && node copy-htaccess.cjs",
+    "zip-theme": "node zip-theme.js",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
@@ -33,6 +34,7 @@
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-react": "^4.0.3",
+    "archiver": "^7.0.1",
     "concurrently": "^8.2.2",
     "eslint": "^8.45.0",
     "eslint-plugin-react-hooks": "^4.6.0",

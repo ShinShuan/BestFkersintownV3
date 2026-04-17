@@ -19,6 +19,15 @@ const AdminVoteManager: React.FC<AdminVoteManagerProps> = ({ isVisible, onClose 
   const { language } = useLanguage();
   const { showNotification } = useNotification();
 
+  const handleDeactivateAdmin = () => {
+    if (window.confirm(language === 'fr' 
+      ? 'Voulez-vous vraiment désactiver le mode administration ?' 
+      : 'Are you sure you want to deactivate admin mode?')) {
+      localStorage.removeItem('adminMode');
+      window.location.reload();
+    }
+  };
+
   // État pour les onglets
   const [activeTab, setActiveTab] = useState<TabType>('votes');
 
@@ -1114,6 +1123,26 @@ const ActionButton = styled.button<{ $danger?: boolean }>`
   &:hover {
     background: ${props => props.$danger ? '#dc2626' : 'var(--gray-200)'};
     transform: scale(1.05);
+  }
+`;
+
+const DeactivateButton = styled.button`
+  background: #fee2e2;
+  color: #ef4444;
+  border: 1px solid #fecaca;
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  margin-top: var(--spacing-4);
+  width: fit-content;
+  align-self: center;
+
+  &:hover {
+    background: #fecaca;
+    transform: translateY(-1px);
   }
 `;
 

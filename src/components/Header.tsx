@@ -271,11 +271,35 @@ const Header: React.FC = () => {
     closeMobileMenu();
   }, [location.pathname]);
 
-  // Vérifier le mode admin
+  // Vérifier le mode admin initial et écouter les changements
   useEffect(() => {
-    const adminMode = localStorage.getItem('adminMode') === 'true';
-    setIsAdminMode(adminMode);
-  }, []);
+    const checkAdminMode = () => {
+      const adminMode = localStorage.getItem('adminMode') === 'true';
+      const urlParams = new URLSearchParams(window.location.search);
+      const isUrlAdmin = urlParams.get('admin') === 'true';
+
+      if (isUrlAdmin && !adminMode) {
+        localStorage.setItem('adminMode', 'true');
+        setIsAdminMode(true);
+      } else {
+        setIsAdminMode(adminMode);
+      }
+    };
+
+    checkAdminMode();
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'adminMode') {
+        setIsAdminMode(e.newValue === 'true');
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [location.search]);
 
   return (
     <HeaderContainer>
@@ -361,6 +385,20 @@ const Header: React.FC = () => {
                   {item.label}
                 </MobileNavItem>
               ))}
+              
+              {isAdminMode && (
+                <MobileNavItem
+                  to="#"
+                  $isActive={false}
+                  onClick={() => {
+                    setShowAdminManager(true);
+                    closeMobileMenu();
+                  }}
+                  style={{ color: '#d13296', fontWeight: 'bold' }}
+                >
+                  ⚙️ {language === 'fr' ? 'Administration' : 'Administration'}
+                </MobileNavItem>
+              )}
             </MobileNav>
           </MobileMenu>
         )}
