@@ -57,7 +57,7 @@ interface CartContextType {
   clearCart: () => Promise<void>;
   getItemCount: () => number;
   getTotal: () => number;
-  syncWithBigCommerce: () => Promise<void>;
+  syncWithBigCommerce: () => Promise<string | null>;
   getCheckoutUrl: () => Promise<string>;
 }
 
@@ -320,58 +320,50 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     return cart.total;
   };
 
-  const syncWithBigCommerce = async (): Promise<void> => {
+  const syncWithBigCommerce = async (): Promise<string | null> => {
     try {
       console.log('Debut de la synchronisation avec BigCommerce...');
 
       if (cart.items.length === 0) {
         console.log('Panier vide, pas de synchronisation necessaire');
-        return;
+        return null;
       }
 
-      // Creer un panier BigCommerce s'il n'existe pas
-      if (!bigcommerceCartId) {
-        console.log('Creation d\'un nouveau panier BigCommerce...');
-        const lineItems = cart.items.map(item => ({
-          productId: parseInt(item.productId),
-          variantId: item.variantId ? parseInt(item.variantId) : undefined,
-          quantity: item.quantity
-        }));
+      const lineItems = cart.items.map(item => ({
+        productId: parseInt(item.productId),
+        variantId: item.variantId ? parseInt(item.variantId) : undefined,
+        quantity: item.quantity
+      }));
 
+      let resolvedCartId = bigcommerceCartId;
+
+      if (!resolvedCartId) {
+        // Creer un nouveau panier BigCommerce
+        console.log('Creation d\'un nouveau panier BigCommerce...');
         const newCart = await cartService.createCart(lineItems);
         setBigcommerceCart(newCart);
         setBigcommerceCartId(newCart.id);
+        resolvedCartId = newCart.id;
         console.log('Panier BigCommerce cree:', newCart.id);
       } else {
-        // Recuperer le panier existant
+        // Verifier que le panier existant est toujours valide
         try {
-          const existingCart = await cartService.getCart(bigcommerceCartId);
+          const existingCart = await cartService.getCart(resolvedCartId);
           setBigcommerceCart(existingCart);
           console.log('Panier BigCommerce existant recupere:', existingCart.id);
         } catch (error) {
           // Le panier n'existe plus, en creer un nouveau
           console.log('Panier BigCommerce expire, creation d\'un nouveau...');
-          const lineItems = cart.items.map(item => ({
-            productId: parseInt(item.productId),
-            variantId: item.variantId ? parseInt(item.variantId) : undefined,
-            quantity: item.quantity
-          }));
-
           const newCart = await cartService.createCart(lineItems);
           setBigcommerceCart(newCart);
           setBigcommerceCartId(newCart.id);
+          resolvedCartId = newCart.id;
         }
       }
 
-      console.log('Synchronisation avec BigCommerce terminee');
-
-      // Emettre un evenement pour notifier les autres composants
-      window.dispatchEvent(new CustomEvent('cartUpdated', {
-        detail: {
-          cart: bigcommerceCart,
-          timestamp: new Date()
-        }
-      }));
+      console.log('Synchronisation avec BigCommerce terminee, cart ID:', resolvedCartId);
+      window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { timestamp: new Date() } }));
+      return resolvedCartId;
     } catch (error) {
       console.error('Erreur lors de la synchronisation avec BigCommerce:', error);
       throw error;
@@ -380,17 +372,18 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const getCheckoutUrl = async (): Promise<string> => {
     try {
-      if (!bigcommerceCartId) {
-        // Creer un panier d'abord
-        await syncWithBigCommerce();
+      // Synchroniser d'abord pour obtenir l'ID du panier BigCommerce
+      // syncWithBigCommerce retourne l'ID directement (evite les race conditions React)
+      const cartId = await syncWithBigCommerce();
+      const resolvedId = cartId || bigcommerceCartId;
+
+      if (!resolvedId) {
+        throw new Error('Impossible de creer le panier BigCommerce');
       }
 
-      if (bigcommerceCartId) {
-        const checkoutUrl = await cartService.createCheckoutUrl(bigcommerceCartId);
-        return checkoutUrl;
-      }
-
-      throw new Error('Impossible de creer l\'URL de checkout');
+      console.log('Creation de l\'URL de checkout pour cart:', resolvedId);
+      const checkoutUrl = await cartService.createCheckoutUrl(resolvedId);
+      return checkoutUrl;
     } catch (error) {
       console.error('Erreur lors de la creation de l\'URL de checkout:', error);
       throw error;
