@@ -149,6 +149,58 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
+  // Sync a single item with BigCommerce (add to existing cart or create new one)
+  const syncItemWithBigCommerce = async (product: Product, selectedVariantId: string, quantity: number): Promise<void> => {
+    const productId = parseInt(product.id);
+    const variantIdNum = selectedVariantId ? parseInt(selectedVariantId) : undefined;
+
+    const createNewCart = async () => {
+      // Build line items from current local cart + new item
+      const itemMap = new Map<string, { productId: number; variantId?: number; quantity: number }>();
+      cart.items.forEach(i => {
+        const key = `${i.productId}-${i.variantId}`;
+        itemMap.set(key, { productId: parseInt(i.productId), variantId: i.variantId ? parseInt(i.variantId) : undefined, quantity: i.quantity });
+      });
+      // Add or increment the new item
+      const newKey = `${product.id}-${selectedVariantId}`;
+      const existing = itemMap.get(newKey);
+      if (existing) {
+        existing.quantity += quantity;
+      } else {
+        itemMap.set(newKey, { productId, variantId: variantIdNum, quantity });
+      }
+      const newCart = await cartService.createCart(Array.from(itemMap.values()));
+      setBigcommerceCart(newCart);
+      setBigcommerceCartId(newCart.id);
+      localStorage.setItem('bigcommerce_cart_id', newCart.id);
+    };
+
+    if (bigcommerceCartId) {
+      try {
+        const bcCart = await cartService.getCart(bigcommerceCartId);
+        setBigcommerceCart(bcCart);
+        const existingBcItem = bcCart.line_items?.physical_items?.find(
+          (item: BigCommerceLineItem) =>
+            item.product_id === productId &&
+            (!variantIdNum || item.variant_id === variantIdNum)
+        );
+        if (existingBcItem) {
+          await cartService.updateCartItem(bigcommerceCartId, existingBcItem.id, existingBcItem.quantity + quantity);
+        } else {
+          await cartService.addToCart(bigcommerceCartId, productId, variantIdNum, quantity);
+        }
+      } catch (error) {
+        // Cart expired — recreate with all items
+        console.log('Panier BC expiré, recréation avec tous les articles...');
+        setBigcommerceCartId(null);
+        localStorage.removeItem('bigcommerce_cart_id');
+        await createNewCart();
+      }
+    } else {
+      await createNewCart();
+    }
+  };
+
   const addToCart = async (product: Product, quantity: number = 1, variantId?: string): Promise<void> => {
     try {
       console.log('addToCart appele avec:', { product: product.title, quantity, variantId });
@@ -211,7 +263,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
       // Synchroniser avec BigCommerce
       try {
-        await syncWithBigCommerce();
+        await syncItemWithBigCommerce(product, selectedVariantId, quantity);
       } catch (error) {
         console.warn('Erreur lors de la synchronisation BigCommerce:', error);
       }
