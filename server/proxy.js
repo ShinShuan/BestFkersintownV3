@@ -10,12 +10,12 @@ const PORT = process.env.PROXY_PORT || 3001;
 
 // BigCommerce configuration
 const BC_STORE_HASH = process.env.VITE_BIGCOMMERCE_STORE_HASH || 'qdy1j8i5vg';
-const BC_ACCESS_TOKEN = process.env.VITE_BIGCOMMERCE_ACCESS_TOKEN || 'ehi1veygrjzpisslheidxg8slbl7vbl';
-const BC_API_URL = `https://api.bigcommerce.com/stores/${BC_STORE_HASH}`;
+const BC_ACCESS_TOKEN = process.env.VITE_BIGCOMMERCE_ACCESS_TOKEN || process.env.BIGCOMMERCE_ACCESS_TOKEN || '4r5vj284ja8qextpjrlkshn5sxknkx';
+const BC_API_URL = process.env.VITE_BIGCOMMERCE_API_URL || `https://api.bigcommerce.com/stores/${BC_STORE_HASH}`;
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:3000'],
+  origin: ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:3000', 'https://bestfkersintown.com', 'https://www.bestfkersintown.com'],
   credentials: true
 }));
 app.use(express.json());

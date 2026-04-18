@@ -1,16 +1,18 @@
 [
   {
-    "name": "Design Settings",
+    "name": "General Settings",
     "settings": [
-      {
-        "type": "heading",
-        "content": "Theme Colors"
-      },
       {
         "type": "color",
         "label": "Primary Color",
         "id": "color-primary",
         "default": "#d13296"
+      },
+      {
+        "type": "color",
+        "label": "Secondary Color",
+        "id": "color-secondary",
+        "default": "#a8287a"
       }
     ]
   }

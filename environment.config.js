@@ -7,7 +7,7 @@ export const ENV_CONFIG = {
     ACCESS_TOKEN: import.meta.env.VITE_BIGCOMMERCE_ACCESS_TOKEN || '',
     CLIENT_SECRET: import.meta.env.VITE_BIGCOMMERCE_CLIENT_SECRET || '',
     API_URL: import.meta.env.VITE_BIGCOMMERCE_API_URL || 'https://api.bigcommerce.com/stores/qdy1j8i5vg/v3',
-    STOREFRONT_URL: import.meta.env.VITE_BIGCOMMERCE_STOREFRONT_URL || 'https://store-qdy1j8i5vg.mybigcommerce.com',
+    STOREFRONT_URL: import.meta.env.VITE_BIGCOMMERCE_STOREFRONT_URL || 'https://bestfkersintown.mybigcommerce.com',
   },
 
 

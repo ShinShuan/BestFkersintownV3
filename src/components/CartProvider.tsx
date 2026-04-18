@@ -390,19 +390,40 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       let resolvedCartId = bigcommerceCartId;
 
       if (!resolvedCartId) {
-        // Creer un nouveau panier BigCommerce
+        // Creer un nouveau panier BigCommerce avec tous les articles locaux
         console.log('Creation d\'un nouveau panier BigCommerce...');
         const newCart = await cartService.createCart(lineItems);
         setBigcommerceCart(newCart);
         setBigcommerceCartId(newCart.id);
         resolvedCartId = newCart.id;
+        localStorage.setItem('bigcommerce_cart_id', newCart.id);
         console.log('Panier BigCommerce cree:', newCart.id);
       } else {
-        // Verifier que le panier existant est toujours valide
+        // Verifier le panier existant ET synchroniser les articles manquants
         try {
-          const existingCart = await cartService.getCart(resolvedCartId);
-          setBigcommerceCart(existingCart);
-          console.log('Panier BigCommerce existant recupere:', existingCart.id);
+          const bcCart = await cartService.getCart(resolvedCartId);
+          setBigcommerceCart(bcCart);
+          const bcItems: BigCommerceLineItem[] = bcCart.line_items?.physical_items || [];
+
+          // Ajouter ou mettre a jour chaque article local dans BC
+          for (const localItem of cart.items) {
+            const productId = parseInt(localItem.productId);
+            const variantId = localItem.variantId ? parseInt(localItem.variantId) : undefined;
+            const bcItem = bcItems.find(
+              (i: BigCommerceLineItem) =>
+                i.product_id === productId &&
+                (!variantId || i.variant_id === variantId)
+            );
+            if (!bcItem) {
+              console.log('Article manquant dans BC, ajout:', localItem.title);
+              await cartService.addToCart(resolvedCartId!, productId, variantId, localItem.quantity);
+            } else if (bcItem.quantity !== localItem.quantity) {
+              console.log('Quantite differente dans BC, mise a jour:', localItem.title);
+              await cartService.updateCartItem(resolvedCartId!, bcItem.id, localItem.quantity);
+            }
+          }
+
+          console.log('Panier BigCommerce synchronise:', resolvedCartId);
         } catch (error) {
           // Le panier n'existe plus, en creer un nouveau
           console.log('Panier BigCommerce expire, creation d\'un nouveau...');
@@ -410,6 +431,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
           setBigcommerceCart(newCart);
           setBigcommerceCartId(newCart.id);
           resolvedCartId = newCart.id;
+          localStorage.setItem('bigcommerce_cart_id', newCart.id);
         }
       }
 

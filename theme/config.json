@@ -4,7 +4,17 @@
   "meta": {
     "price": 0,
     "author": "BFIT",
+    "author_name": "BFIT",
+    "author_email": "contact@bestfkersintown.com",
+    "author_support_url": "https://bestfkersintown.com",
     "documentation": "https://developer.bigcommerce.com/stencil-docs/"
+  },
+  "images": {
+    "product_size":        { "width": 500,  "height": 500  },
+    "thumb_size":          { "width": 100,  "height": 100  },
+    "productgallery_size": { "width": 500,  "height": 500  },
+    "zoom_size":           { "width": 1280, "height": 1280 },
+    "logo_size":           { "width": 250,  "height": 100  }
   },
   "settings": {
     "font-family": "Outfit, sans-serif",
@@ -14,7 +24,15 @@
   "variations": [
     {
       "name": "Standard",
-      "id": "standard"
+      "id": "standard",
+      "meta": {
+        "desktop_screenshot": "",
+        "mobile_screenshot": "",
+        "description": "BFIT Standard Theme",
+        "demo_url": "",
+        "optimized_for": ["clothing", "fashion_jewelry"],
+        "industries": []
+      }
     }
   ]
 }

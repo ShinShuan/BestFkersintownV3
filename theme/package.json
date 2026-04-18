@@ -4,7 +4,8 @@
   "description": "Stencil Shell for BFIT React Storefront",
   "main": "index.js",
   "devDependencies": {
-    "@bigcommerce/stencil-cli": "^3.12.0"
+    "@bigcommerce/stencil-cli": "^9.0.1",
+    "sass": "^1.99.0"
   },
   "stencil": {
     "width": 1200

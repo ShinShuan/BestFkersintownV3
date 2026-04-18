@@ -233,21 +233,25 @@ export const voteService = {
 
   async getVoteItems(activeOnly: boolean = false): Promise<VoteItem[]> {
     if (isSupabaseConfigured) {
-      const client: any = getSupabaseClient();
-      let query = client.from('vote_items').select('*').order('votes', { ascending: false });
+      try {
+        const client: any = getSupabaseClient();
+        let query = client.from('vote_items').select('*').order('votes', { ascending: false });
 
-      if (activeOnly) {
-        query = query.eq('is_active', true);
+        if (activeOnly) {
+          query = query.eq('is_active', true);
+        }
+
+        const { data, error } = await query;
+
+        if (error) {
+          console.error('Supabase error:', error);
+          throw error;
+        }
+
+        return (data || []).map(mapSupabaseToVoteItem);
+      } catch (err) {
+        console.warn('Supabase fetch failed, falling back to localStorage:', err);
       }
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
-      }
-
-      return (data || []).map(mapSupabaseToVoteItem);
     }
 
     // Fallback localStorage
@@ -528,18 +532,22 @@ export const voteService = {
 
   async getComingItems(): Promise<ComingItem[]> {
     if (isSupabaseConfigured) {
-      const client: any = getSupabaseClient();
-      const { data, error } = await client
-        .from('coming_items')
-        .select('*')
-        .order('release_date', { ascending: true });
+      try {
+        const client: any = getSupabaseClient();
+        const { data, error } = await client
+          .from('coming_items')
+          .select('*')
+          .order('release_date', { ascending: true });
 
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
+        if (error) {
+          console.error('Supabase error:', error);
+          throw error;
+        }
+
+        return (data || []).map(mapSupabaseToComingItem);
+      } catch (err) {
+        console.warn('Supabase fetch failed for coming_items, falling back to localStorage:', err);
       }
-
-      return (data || []).map(mapSupabaseToComingItem);
     }
 
     return getStorageData<ComingItem[]>(STORAGE_KEYS.COMING_ITEMS, DEFAULT_COMING_ITEMS);

@@ -8,8 +8,8 @@
         {{#each cart.items}}
         <div class="cart-item" data-item-id="{{id}}">
             <div class="item-image">
-                {{#if product.main_image}}
-                <img src="{{getImageSrcset product.main_image 'thumb_size'}}" alt="{{name}}">
+                {{#if image}}
+                <img src="{{getImageSrcset image 'thumb_size'}}" alt="{{name}}">
                 {{else}}
                 <div class="no-img">👕</div>
                 {{/if}}
@@ -72,37 +72,42 @@
 
 <script>
 (function() {
-    // Remove item
+    function getCartId(cb) {
+        fetch('/api/storefront/carts', { credentials: 'include' })
+            .then(function(r) { return r.ok ? r.json() : []; })
+            .then(function(carts) { cb(carts && carts[0] ? carts[0].id : null); })
+            .catch(function() { cb(null); });
+    }
+
+    // Remove item — DELETE /api/storefront/carts/{cartId}/items/{itemId}
     document.querySelectorAll('.item-remove').forEach(function(btn) {
         btn.addEventListener('click', function() {
             var itemId = btn.dataset.itemId;
-            fetch('/api/storefront/carts/items/' + itemId, {
-                method: 'DELETE',
-                credentials: 'include'
-            }).then(function() { location.reload(); });
+            getCartId(function(cartId) {
+                if (!cartId) return;
+                fetch('/api/storefront/carts/' + cartId + '/items/' + itemId, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                }).then(function() { location.reload(); });
+            });
         });
     });
 
-    // Update quantity on blur
+    // Update quantity — PUT /api/storefront/carts/{cartId}/items/{itemId}
     document.querySelectorAll('.cart-qty-input').forEach(function(inp) {
         inp.addEventListener('change', function() {
             var qty = parseInt(inp.value, 10);
             var itemId = inp.dataset.itemId;
             if (qty < 1) { inp.value = 1; qty = 1; }
-
-            fetch('/api/storefront/carts', { credentials: 'include' })
-                .then(function(r) { return r.json(); })
-                .then(function(carts) {
-                    if (!carts || !carts[0]) return;
-                    var cartId = carts[0].id;
-                    return fetch('/api/storefront/carts/' + cartId + '/items/' + itemId, {
-                        method: 'PUT',
-                        credentials: 'include',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ lineItem: { quantity: qty } })
-                    });
-                })
-                .then(function() { location.reload(); });
+            getCartId(function(cartId) {
+                if (!cartId) return;
+                fetch('/api/storefront/carts/' + cartId + '/items/' + itemId, {
+                    method: 'PUT',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ lineItem: { quantity: qty } })
+                }).then(function() { location.reload(); });
+            });
         });
     });
 })();

@@ -8,14 +8,22 @@
     {{{ head.scripts }}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{cdn 'assets/scss/theme-bundle.css'}}">
 </head>
 <body>
 
 <!-- ===== HEADER ===== -->
 <header class="bfit-header">
-    <a href="/" class="bfit-logo">BestF.kersInTown</a>
+    <a href="/" class="bfit-logo-wrap">
+        <div class="bfit-logo-icon">BFT</div>
+        <div class="bfit-logo-text">BestF.kers<span>in</span>Town</div>
+    </a>
+
+    <nav class="bfit-header-nav">
+        <a href="/">Home</a>
+        <a href="/shop-all/">Products</a>
+    </nav>
 
     <form action="/search.php" method="GET" class="bfit-search-form">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -66,11 +74,33 @@
 <!-- ===== FOOTER ===== -->
 <footer class="bfit-footer">
     <div class="footer-inner">
-        <div class="footer-brand">BestF.kersInTown</div>
-        <p class="footer-tagline">{{lang 'footer.tagline'}}</p>
-        <div class="footer-bottom">
-            <p>&copy; {{settings.store_name}} 2025 &mdash; {{lang 'footer.rights'}}</p>
+        <div>
+            <div class="footer-brand">BestF.kers<span>in</span>Town</div>
+            <p class="footer-tagline">{{lang 'footer.tagline'}}</p>
         </div>
+        <div>
+            <div class="footer-col-title">Navigation</div>
+            <div class="footer-links">
+                <a href="/">Home</a>
+                <a href="/shop-all/">Products</a>
+                <a href="{{urls.cart}}">Cart</a>
+            </div>
+        </div>
+        <div>
+            <div class="footer-col-title">Account</div>
+            <div class="footer-links">
+                {{#if customer.name}}
+                <a href="{{urls.account.index}}">My Account</a>
+                <a href="{{urls.account.orders.all}}">My Orders</a>
+                {{else}}
+                <a href="{{urls.auth.login}}">Sign In</a>
+                <a href="{{urls.auth.create_account}}">Create Account</a>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; {{settings.store_name}} 2025 &mdash; {{lang 'footer.rights'}}</p>
     </div>
 </footer>
 
@@ -83,7 +113,6 @@
 <!-- ===== GLOBAL SCRIPTS ===== -->
 <script>
 (function() {
-    // Toast helper
     window.bfitToast = function(msg, type) {
         type = type || 'success';
         var t = document.getElementById('bfit-toast');
@@ -93,7 +122,6 @@
         setTimeout(function() { t.classList.remove('show'); }, 3000);
     };
 
-    // Update cart count badge from Storefront API
     window.bfitUpdateCartCount = function() {
         fetch('/api/storefront/carts?include=lineItems.physicalItems', { credentials: 'include' })
             .then(function(r) { return r.ok ? r.json() : []; })
@@ -121,7 +149,6 @@
             .catch(function() {});
     };
 
-    // Add to cart via Storefront API
     window.bfitAddToCart = function(productId, variantId, qty, btn, successMsg, errorMsg) {
         qty = qty || 1;
         var originalHTML = btn ? btn.innerHTML : '';

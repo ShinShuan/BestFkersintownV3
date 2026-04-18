@@ -10,12 +10,16 @@ const STOREFRONT_URL = ENV_CONFIG.BIGCOMMERCE.STOREFRONT_URL;
 // En developpement local, utilise le serveur proxy sur le port 3001
 const isProduction = import.meta.env.PROD || import.meta.env.VITE_VERCEL_ENV === 'production' || import.meta.env.VITE_VERCEL_ENV === 'preview';
 
-// En production, on utilise le chemin relatif. En dev, on utilise le proxy local.
+// En production, on utilise le chemin relatif par défaut, ou l'URL de proxy si définie
 const PROXY_BASE = isProduction
-  ? ''
+  ? (import.meta.env.VITE_PROXY_URL || '').replace(/\/$/, '')
   : (import.meta.env.VITE_PROXY_URL || 'http://localhost:3001').replace(/\/$/, '');
 
+// Fallback checking for Storefront URL to ensure redirection works
+const CHECKOUT_FALLBACK_BASE = STOREFRONT_URL || `https://store-${STORE_HASH}.mybigcommerce.com`;
+
 console.log(`[BigCommerce Service] Using PROXY_BASE: ${PROXY_BASE || '(relative path)'}`);
+console.log(`[BigCommerce Service] Checkout Fallback Base: ${CHECKOUT_FALLBACK_BASE}`);
 
 // Instance Axios pour l'API BigCommerce V3 (via proxy)
 export const bigcommerceAPI: AxiosInstance = axios.create({
@@ -713,11 +717,18 @@ export const cartService = {
   // Créer une URL de checkout
   async createCheckoutUrl(cartId: string): Promise<string> {
     try {
+      console.log(`[Cart Service] Creating checkout URL for cart ID: ${cartId}`);
       const response = await bigcommerceAPI.post(`/carts/${cartId}/redirect_urls`);
+      console.log('[Cart Service] Checkout URL created successfully');
       return response.data.data.checkout_url;
     } catch (error: any) {
-      console.error('Error creating checkout URL:', error.response?.data || error.message);
-      throw error;
+      console.warn('[Cart Service] Error creating redirect URL, using fallback:', error.response?.data || error.message);
+      
+      // Fallback: Redirection directe vers le checkout BigCommerce avec le cart_id
+      // Format standard: {store_url}/checkout.php?action=set_external_cart&cart_id={cart_id}
+      const fallbackUrl = `${CHECKOUT_FALLBACK_BASE.replace(/\/$/, '')}/checkout.php?action=set_external_cart&cart_id=${cartId}`;
+      console.log(`[Cart Service] Fallback URL: ${fallbackUrl}`);
+      return fallbackUrl;
     }
   }
 };

@@ -13,6 +13,12 @@ declare global {
         };
       };
     };
+    BC_CUSTOMER?: {
+      id: string;
+      name: string;
+      email: string;
+      customer_group_id: string;
+    };
   }
 }
 
@@ -68,13 +74,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Charger le script Google OAuth
         await loadGoogleScript();
 
-        // Vérifier si l'utilisateur est connecté
-        if (authService.isAuthenticated()) {
+        // 1. Vérifier si l'utilisateur est connecté via BigCommerce (Shell)
+        if (window.BC_CUSTOMER && window.BC_CUSTOMER.id && window.BC_CUSTOMER.id !== '0' && window.BC_CUSTOMER.id !== '') {
+          console.log('Utilisateur détecté via BigCommerce:', window.BC_CUSTOMER);
+          const [firstName, ...lastNames] = window.BC_CUSTOMER.name.split(' ');
+          setUser({
+            id: window.BC_CUSTOMER.id,
+            email: window.BC_CUSTOMER.email,
+            firstName: firstName || 'User',
+            lastName: lastNames.join(' ') || '',
+            role: 'user'
+          } as any);
+        } 
+        // 2. Sinon, vérifier le token local
+        else if (authService.isAuthenticated()) {
           const currentUser = authService.getCurrentUser();
           if (currentUser) {
             setUser(currentUser);
           } else {
-            // Token invalide, déconnecter
             authService.logout();
           }
         }
