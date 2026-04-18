@@ -14,11 +14,7 @@
   "variations": [
     {
       "name": "Standard",
-      "id": "standard",
-      "meta": {
-        "desktop_screenshot": "screenshot-standard.png",
-        "mobile_screenshot": "screenshot-standard.png"
-      }
+      "id": "standard"
     }
   ]
 }
