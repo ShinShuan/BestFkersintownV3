@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { favoritesService, FavoritesState } from '../services/favorites';
+import { favoritesService, FavoritesState, Favorite } from '../services/favorites';
+import { productService } from '../services/bigcommerce';
 import { useLanguage } from './LanguageProvider';
 import { useAuth } from './AuthProvider';
 import { useNotification } from './NotificationProvider';
@@ -48,7 +49,34 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
 
     try {
       setFavoritesState(prev => ({ ...prev, isLoading: true, error: null }));
-      const favorites = await favoritesService.getUserFavorites(userId);
+      let favorites = await favoritesService.getUserFavorites(userId);
+
+      // Enrich favorites that have missing productTitle/productImage/productPrice
+      const needsEnrichment = favorites.filter(
+        f => !f.productTitle || !f.productImage || !f.productPrice
+      );
+      if (needsEnrichment.length > 0) {
+        const enriched = await Promise.all(
+          favorites.map(async (fav: Favorite) => {
+            if (fav.productTitle && fav.productImage && fav.productPrice) return fav;
+            try {
+              const product = await productService.getProductById(fav.productId);
+              if (!product) return fav;
+              return {
+                ...fav,
+                productTitle: fav.productTitle || product.title,
+                productImage: fav.productImage || product.images[0]?.src || '',
+                productPrice: fav.productPrice || product.variants[0]?.price.toString() || '',
+              };
+            } catch {
+              return fav;
+            }
+          })
+        );
+        favorites = enriched;
+        favoritesService.saveLocalFavorites(userId, enriched);
+      }
+
       setFavoritesState({
         favorites,
         isLoading: false,

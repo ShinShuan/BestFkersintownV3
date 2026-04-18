@@ -8,8 +8,8 @@
         {{#each cart.items}}
         <div class="cart-item" data-item-id="{{id}}">
             <div class="item-image">
-                {{#if image}}
-                <img src="{{getImageSrcset image 'thumb_size'}}" alt="{{name}}">
+                {{#if image.data}}
+                <img src="{{getImageSrcset image.data 'thumb_size'}}" alt="{{name}}" loading="lazy">
                 {{else}}
                 <div class="no-img">👕</div>
                 {{/if}}

@@ -10,6 +10,8 @@ import { useNotification } from './NotificationProvider';
 interface LikeButtonProps {
   productId: string;
   productTitle?: string;
+  productImage?: string;
+  productPrice?: string;
   size?: 'small' | 'medium' | 'large';
   variant?: 'outline' | 'filled' | 'minimal';
   showCount?: boolean;
@@ -160,6 +162,8 @@ const Tooltip = styled(motion.div)`
 const LikeButton: React.FC<LikeButtonProps> = ({
   productId,
   productTitle,
+  productImage,
+  productPrice,
   size = 'medium',
   variant = 'outline',
   showCount = false,
@@ -218,8 +222,8 @@ const LikeButton: React.FC<LikeButtonProps> = ({
         await favoritesService.addToFavorites(userId, {
           id: productId,
           title: productTitle || 'Produit',
-          image: undefined,
-          price: undefined
+          image: productImage,
+          price: productPrice
         });
         setIsLiked(true);
         showNotification({
