@@ -1,4 +1,59 @@
+---
+category:
+    shop_by_price: true
+    products:
+        limit: 24
+---
 {{#partial "page"}}
-<div id="bfit-root-mount"></div>
+
+<div class="bfit-category-page">
+    <div class="category-header">
+        <h1>{{category.name}}</h1>
+        {{#if category.description}}
+        <p>{{{category.description}}}</p>
+        {{/if}}
+    </div>
+
+    {{#if category.products}}
+    <div class="bfit-products-grid">
+        {{#each category.products}}
+        <article class="bfit-product-card">
+            <a href="{{urls.product}}" class="card-image">
+                {{#if default_image}}
+                <img src="{{getImageSrcset default_image 'product_size'}}" alt="{{name}}" loading="lazy">
+                {{else}}
+                <div class="no-image">👕</div>
+                {{/if}}
+            </a>
+            <div class="card-body">
+                <div class="card-title">{{name}}</div>
+                <div class="card-price">{{price.without_tax.formatted}}</div>
+                <a href="{{urls.product}}" class="card-btn">{{lang 'product.view_product'}}</a>
+            </div>
+        </article>
+        {{/each}}
+    </div>
+
+    {{#if category.pagination.links}}
+    <nav class="bfit-pagination">
+        {{#if category.pagination.links.previous}}
+        <a href="{{category.pagination.links.previous}}">&larr;</a>
+        {{/if}}
+        {{#each category.pagination.links.pages}}
+        <a href="{{url}}" class="{{#if active}}current{{/if}}">{{number}}</a>
+        {{/each}}
+        {{#if category.pagination.links.next}}
+        <a href="{{category.pagination.links.next}}">&rarr;</a>
+        {{/if}}
+    </nav>
+    {{/if}}
+
+    {{else}}
+    <div style="text-align:center;padding:80px 24px;color:var(--text-muted)">
+        <p style="font-size:18px">{{lang 'category.no_products'}}</p>
+    </div>
+    {{/if}}
+</div>
+
 {{/partial}}
 {{> layout/base}}

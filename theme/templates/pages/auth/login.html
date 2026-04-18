@@ -1,4 +1,40 @@
 {{#partial "page"}}
-<div id="bfit-root-mount"></div>
+
+<div class="bfit-auth-page">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-logo">BestF.kersInTown</div>
+            <p>{{lang 'login.subtitle'}}</p>
+        </div>
+        <div class="auth-body">
+            {{#if error_messages}}
+            <div class="form-error">{{error_messages}}</div>
+            {{/if}}
+
+            <form action="{{urls.auth.login}}" method="POST">
+                <input type="hidden" name="action" value="check_login">
+                {{#if urls.auth.login_token}}
+                <input type="hidden" name="login_token" value="{{urls.auth.login_token}}">
+                {{/if}}
+
+                <div class="form-group">
+                    <label for="login_email">{{lang 'login.email'}}</label>
+                    <input type="email" id="login_email" name="login_email" autocomplete="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login_pass">{{lang 'login.password'}}</label>
+                    <input type="password" id="login_pass" name="login_pass" autocomplete="current-password" required>
+                </div>
+                <button type="submit" class="auth-btn">{{lang 'login.submit'}}</button>
+            </form>
+
+            <div class="auth-links">
+                <p><a href="{{urls.auth.forgot_password}}">{{lang 'login.forgot_password'}}</a></p>
+                <p>{{lang 'login.no_account'}}<a href="{{urls.auth.create_account}}">{{lang 'login.create_account'}}</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{/partial}}
 {{> layout/base}}

@@ -1,4 +1,40 @@
+---
+search:
+    product_results:
+        limit: 24
+---
 {{#partial "page"}}
-<div id="bfit-root-mount"></div>
+
+<div class="bfit-search-page">
+    <h1>{{lang 'search.results_for'}} &ldquo;{{search_query}}&rdquo;</h1>
+    <p class="search-meta">{{lang 'search.products_found'}}: {{search.total_product_results}}</p>
+
+    {{#if search.product_results}}
+    <div class="bfit-products-grid">
+        {{#each search.product_results}}
+        <article class="bfit-product-card">
+            <a href="{{urls.product}}" class="card-image">
+                {{#if default_image}}
+                <img src="{{getImageSrcset default_image 'product_size'}}" alt="{{name}}" loading="lazy">
+                {{else}}
+                <div class="no-image">👕</div>
+                {{/if}}
+            </a>
+            <div class="card-body">
+                <div class="card-title">{{name}}</div>
+                <div class="card-price">{{price.without_tax.formatted}}</div>
+                <a href="{{urls.product}}" class="card-btn">{{lang 'product.view_product'}}</a>
+            </div>
+        </article>
+        {{/each}}
+    </div>
+    {{else}}
+    <div class="no-results">
+        <p>{{lang 'search.no_results'}}</p>
+        <a href="/" class="bfit-cta-btn">{{lang 'nav.home'}}</a>
+    </div>
+    {{/if}}
+</div>
+
 {{/partial}}
 {{> layout/base}}

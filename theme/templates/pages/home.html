@@ -1,4 +1,100 @@
+---
+featured_products:
+    limit: 12
+new_products:
+    limit: 8
+top_sellers:
+    limit: 8
+carousel: true
+---
 {{#partial "page"}}
-<div id="bfit-root-mount"></div>
+
+<section class="bfit-hero">
+    <h1>Best<span>F.</span>kersInTown</h1>
+    <p>{{lang 'home.hero_subtitle'}}</p>
+    <a href="/categories" class="bfit-cta-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" x2="21" y1="6" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+        {{lang 'home.shop_now'}}
+    </a>
+</section>
+
+{{#if featured_products}}
+<div class="bfit-section">
+    <h2 class="bfit-section-title">{{lang 'home.featured_products'}}</h2>
+    <div class="bfit-products-grid">
+        {{#each featured_products}}
+        <article class="bfit-product-card">
+            <a href="{{urls.product}}" class="card-image">
+                {{#if default_image}}
+                <img src="{{getImageSrcset default_image 'product_size'}}" alt="{{name}}" loading="lazy">
+                {{else}}
+                <div class="no-image">👕</div>
+                {{/if}}
+            </a>
+            <div class="card-body">
+                <div class="card-title">{{name}}</div>
+                <div class="card-price">{{price.without_tax.formatted}}</div>
+                <button
+                    class="card-btn"
+                    data-product-id="{{id}}"
+                    data-variant-id="{{#first variants}}{{id}}{{/first}}"
+                    onclick="handleAddToCart(this)"
+                >
+                    {{lang 'product.add_to_cart'}}
+                </button>
+            </div>
+        </article>
+        {{/each}}
+    </div>
+</div>
+{{/if}}
+
+{{#if new_products}}
+<div class="bfit-section" style="padding-top:0">
+    <h2 class="bfit-section-title">{{lang 'home.new_arrivals'}}</h2>
+    <div class="bfit-products-grid">
+        {{#each new_products}}
+        <article class="bfit-product-card">
+            <a href="{{urls.product}}" class="card-image">
+                {{#if default_image}}
+                <img src="{{getImageSrcset default_image 'product_size'}}" alt="{{name}}" loading="lazy">
+                {{else}}
+                <div class="no-image">👕</div>
+                {{/if}}
+            </a>
+            <div class="card-body">
+                <div class="card-title">{{name}}</div>
+                <div class="card-price">{{price.without_tax.formatted}}</div>
+                <button
+                    class="card-btn"
+                    data-product-id="{{id}}"
+                    data-variant-id="{{#first variants}}{{id}}{{/first}}"
+                    onclick="handleAddToCart(this)"
+                >
+                    {{lang 'product.add_to_cart'}}
+                </button>
+            </div>
+        </article>
+        {{/each}}
+    </div>
+</div>
+{{/if}}
+
+<script>
+var BFIT_I18N = {
+    added: "{{lang 'product.added_to_cart'}}",
+    error: "{{lang 'product.add_error'}}"
+};
+function handleAddToCart(btn) {
+    var productId = parseInt(btn.dataset.productId, 10);
+    var variantId = parseInt(btn.dataset.variantId, 10);
+    bfitAddToCart(productId, variantId, 1, btn, BFIT_I18N.added, BFIT_I18N.error);
+}
+</script>
+
 {{/partial}}
 {{> layout/base}}

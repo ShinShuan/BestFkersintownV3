@@ -1,0 +1,47 @@
+{{#partial "page"}}
+
+<div class="bfit-auth-page">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-logo">BestF.kersInTown</div>
+            <p>{{lang 'create_account.subtitle'}}</p>
+        </div>
+        <div class="auth-body">
+            {{#if error_messages}}
+            <div class="form-error">{{error_messages}}</div>
+            {{/if}}
+
+            <form action="{{urls.auth.create_account}}" method="POST">
+                <input type="hidden" name="action" value="create_account">
+                <div class="form-group">
+                    <label for="FirstName">{{lang 'create_account.first_name'}}</label>
+                    <input type="text" id="FirstName" name="FirstName" required>
+                </div>
+                <div class="form-group">
+                    <label for="LastName">{{lang 'create_account.last_name'}}</label>
+                    <input type="text" id="LastName" name="LastName" required>
+                </div>
+                <div class="form-group">
+                    <label for="EmailAddress">{{lang 'create_account.email'}}</label>
+                    <input type="email" id="EmailAddress" name="EmailAddress" autocomplete="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="Password">{{lang 'create_account.password'}}</label>
+                    <input type="password" id="Password" name="Password" autocomplete="new-password" required>
+                </div>
+                <div class="form-group">
+                    <label for="ConfirmPassword">{{lang 'create_account.confirm_password'}}</label>
+                    <input type="password" id="ConfirmPassword" name="ConfirmPassword" autocomplete="new-password" required>
+                </div>
+                <button type="submit" class="auth-btn">{{lang 'create_account.submit'}}</button>
+            </form>
+
+            <div class="auth-links">
+                <p>{{lang 'create_account.have_account'}}<a href="{{urls.auth.login}}">{{lang 'create_account.login'}}</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{/partial}}
+{{> layout/base}}

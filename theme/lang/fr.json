@@ -1,0 +1,70 @@
+{
+  "header": {
+    "search_placeholder": "Rechercher des produits...",
+    "login": "Connexion",
+    "account": "Compte",
+    "cart": "Panier"
+  },
+  "nav": { "home": "Accueil" },
+  "footer": {
+    "tagline": "Le meilleur streetwear de la ville.",
+    "rights": "Tous droits réservés."
+  },
+  "home": {
+    "hero_subtitle": "Découvrez des drops exclusifs streetwear.",
+    "shop_now": "Acheter",
+    "featured_products": "Produits en vedette",
+    "new_arrivals": "Nouveautés"
+  },
+  "product": {
+    "add_to_cart": "Ajouter au panier",
+    "added_to_cart": "Ajouté au panier !",
+    "add_error": "Impossible d'ajouter au panier",
+    "view_product": "Voir le produit",
+    "related_products": "Vous aimerez aussi"
+  },
+  "category": { "no_products": "Aucun produit trouvé dans cette catégorie." },
+  "cart": {
+    "title": "Votre panier",
+    "subtotal": "Sous-total",
+    "discount": "Réduction",
+    "total": "Total",
+    "checkout": "Procéder au paiement",
+    "remove": "Supprimer",
+    "empty_title": "Votre panier est vide",
+    "empty_message": "Vous n'avez encore rien ajouté.",
+    "continue_shopping": "Continuer les achats"
+  },
+  "search": {
+    "results_for": "Résultats pour",
+    "products_found": "Produits trouvés",
+    "no_results": "Aucun produit ne correspond à votre recherche."
+  },
+  "login": {
+    "subtitle": "Connectez-vous à votre compte",
+    "email": "Adresse e-mail",
+    "password": "Mot de passe",
+    "submit": "Se connecter",
+    "forgot_password": "Mot de passe oublié ?",
+    "no_account": "Pas encore de compte ?",
+    "create_account": " Créer un compte"
+  },
+  "create_account": {
+    "subtitle": "Créez votre compte",
+    "first_name": "Prénom",
+    "last_name": "Nom",
+    "email": "Adresse e-mail",
+    "password": "Mot de passe",
+    "confirm_password": "Confirmer le mot de passe",
+    "submit": "Créer un compte",
+    "have_account": "Déjà un compte ?",
+    "login": " Se connecter"
+  },
+  "forgot_password": {
+    "subtitle": "Réinitialiser votre mot de passe",
+    "email": "Adresse e-mail",
+    "submit": "Envoyer le lien",
+    "sent": "Si cet e-mail existe, un lien de réinitialisation a été envoyé.",
+    "back_to_login": "Retour à la connexion"
+  }
+}
