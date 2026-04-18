@@ -12,18 +12,25 @@ export default async function handler(req, res) {
         return res.status(200).end();
     }
 
-    const { path } = req.query;
-    // Si le chemin vient d'un rewrite Vercel, il peut être dans req.query.path
-    // Sinon, on essaie de le déduire de l'URL
-    let apiPath = Array.isArray(path) ? path.join('/') : (path || '');
+    const { path, bc_api_path } = req.query;
 
-    if (!apiPath && req.url) {
+    // Priorité 1 : bc_api_path passé explicitement par le rewrite vercel.json
+    // Priorité 2 : path array (catch-all route)
+    // Priorité 3 : extraction depuis l'URL originale
+    let apiPath = '';
+    if (bc_api_path) {
+        apiPath = Array.isArray(bc_api_path) ? bc_api_path.join('/') : bc_api_path;
+    } else if (path) {
+        apiPath = Array.isArray(path) ? path.join('/') : path;
+    } else if (req.url) {
         const urlParts = req.url.split('?')[0].split('/');
         const apiIndex = urlParts.indexOf('bigcommerce');
         if (apiIndex !== -1 && apiIndex < urlParts.length - 1) {
             apiPath = urlParts.slice(apiIndex + 1).join('/');
         }
     }
+
+    console.log(`[Proxy] apiPath resolved: "${apiPath}" from bc_api_path="${bc_api_path}" url="${req.url}"`);
 
     // Endpoint de test pour déboguer
     if (apiPath === 'ping' || req.url.includes('ping')) {
@@ -75,7 +82,7 @@ export default async function handler(req, res) {
     // Ajouter les paramètres de requête au nouvel URL
     const bigCommerceUrl = new URL(baseUrl);
     Object.keys(req.query).forEach(key => {
-        if (key !== 'path' && key !== 'version') {
+        if (key !== 'path' && key !== 'version' && key !== 'bc_api_path') {
             bigCommerceUrl.searchParams.append(key, req.query[key]);
         }
     });

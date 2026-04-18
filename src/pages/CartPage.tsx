@@ -343,7 +343,8 @@ const CartPage: React.FC = () => {
       });
 
       const checkoutUrl = await getCheckoutUrl();
-      window.location.href = checkoutUrl;
+      // Naviguer vers la page checkout intégrée au lieu de rediriger externalement
+      navigate('/checkout', { state: { checkoutUrl } });
     } catch (error) {
       console.error('Erreur lors du checkout:', error);
       showNotification({

@@ -25,6 +25,7 @@ import VotePage from './pages/VotePage';
 import FavoritesPage from './pages/FavoritesPage';
 import CGVPage from './pages/CGVPage';
 import DiscoverPage from './pages/DiscoverPage';
+import CheckoutPage from './pages/CheckoutPage';
 
 // Services
 import { stockSyncService } from './services/stock-sync';
@@ -137,7 +138,7 @@ const App: React.FC = () => {
                     <Route path="/favorites" element={<FavoritesPage />} />
                     <Route path="/cgv" element={<CGVPage />} />
                     <Route path="/discover" element={<DiscoverPage />} />
-                    <Route path="/checkout" element={<div>Checkout (BigCommerce)</div>} />
+                    <Route path="/checkout" element={<CheckoutPage />} />
                   </Routes>
                 </main>
                 <Footer />
