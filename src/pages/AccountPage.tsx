@@ -476,10 +476,44 @@ const AccountPage: React.FC = () => {
             </AccountSubtitle>
           </AccountHeader>
 
-          <div style={{ textAlign: 'center', padding: 'var(--spacing-8)' }}>
-            <p>{language === 'fr'
-              ? 'L\'authentification est gérée via BigCommerce.'
-              : 'Authentication is managed via BigCommerce.'}</p>
+          <div style={{
+            maxWidth: '420px',
+            margin: '0 auto',
+            background: 'var(--white)',
+            borderRadius: 'var(--radius-2xl)',
+            padding: 'var(--spacing-8)',
+            boxShadow: 'var(--shadow-lg)',
+            border: '1px solid var(--gray-100)'
+          }}>
+            <a
+              href="https://bestfkersintown.mybigcommerce.com/login"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px',
+                width: '100%',
+                padding: '16px 24px',
+                background: 'linear-gradient(135deg, #d13296 0%, #b02a7a 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                marginBottom: '16px',
+                boxShadow: '0 4px 15px rgba(209,50,150,0.3)'
+              }}
+            >
+              <LogIn size={20} />
+              {language === 'fr' ? 'Se connecter / Créer un compte' : 'Sign In / Create Account'}
+            </a>
+            <p style={{ textAlign: 'center', fontSize: '13px', color: 'var(--gray-500)', margin: 0 }}>
+              {language === 'fr'
+                ? 'Vous serez redirigé vers la page de connexion sécurisée BigCommerce'
+                : 'You will be redirected to the secure BigCommerce login page'}
+            </p>
           </div>
         </Container>
       </AccountContainer>
