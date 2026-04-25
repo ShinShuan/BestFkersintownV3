@@ -74,11 +74,11 @@ export interface Database {
   };
 }
 
-// Variables d'environnement Supabase
+// Variables d'environnement Supabase (fallback to hardcoded values for production)
 // @ts-ignore
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://gqyiydiplnyllhcpjuur.supabase.co';
 // @ts-ignore
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdxeWl5ZGlwbG55bGxoY3BqdXVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyMzE4NjgsImV4cCI6MjA4NjgwNzg2OH0.MhhbS1Czu-QV5K_43ZCtNkTc9a0o8p5PivjVtccrCCs';
 
 // Vérifier si Supabase est configuré
 export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey);
