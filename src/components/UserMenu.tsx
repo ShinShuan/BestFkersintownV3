@@ -328,6 +328,7 @@ const UserMenu: React.FC = () => {
          $isAuthenticated={isAuthenticated}
          onClick={handleToggleMenu}
          whileTap={{ scale: 0.95 }}
+         data-usermenu-trigger="true"
        >
          {isAuthenticated && user ? (
           <>

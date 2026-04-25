@@ -1077,6 +1077,57 @@ input, textarea, select { font-family: var(--font); }
     .current { color: var(--text); }
 }
 
+/* ===== TRUST / SATISFACTION BAR ===== */
+.bfit-trust-bar {
+    background: #1a1a1a;
+    padding: 28px 24px;
+    margin-top: 60px;
+
+    .bfit-trust-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        gap: 24px;
+        flex-wrap: wrap;
+    }
+
+    .trust-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        color: white;
+
+        svg { color: var(--primary); flex-shrink: 0; }
+
+        .trust-text {
+            display: flex;
+            flex-direction: column;
+
+            strong {
+                font-size: 15px;
+                font-weight: 700;
+                line-height: 1.2;
+            }
+
+            span {
+                font-size: 12px;
+                color: #999;
+                margin-top: 2px;
+            }
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .bfit-trust-bar .bfit-trust-inner {
+        grid-template-columns: repeat(2, 1fr);
+        display: grid;
+        gap: 20px;
+    }
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 900px) {
     .bfit-product-page { grid-template-columns: 1fr; gap: 32px; }
@@ -1085,22 +1136,34 @@ input, textarea, select { font-family: var(--font); }
 }
 
 @media (max-width: 768px) {
-    .bfit-header { padding: 0 16px; }
+    .bfit-header { padding: 0 16px; height: 60px; }
     .bfit-search-form { display: none; }
-    .bfit-hero { min-height: 360px; }
-    .hero-banner { .banner-main, .banner-sub, .banner-tagline { padding: 14px 20px; } }
-    .bfit-products-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .bfit-section { padding: 36px 16px; }
-    .cart-item { grid-template-columns: 64px 1fr; grid-template-rows: auto auto;
+    .bfit-hero { min-height: 300px; }
+    .hero-banner {
+        .banner-main { padding: 12px 16px; h1 { font-size: clamp(18px, 5vw, 28px); } }
+        .banner-sub { padding: 10px 16px; h2 { font-size: clamp(15px, 4vw, 24px); } }
+        .banner-tagline { padding: 8px 16px; p { font-size: 13px; } }
+    }
+    .bfit-products-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .bfit-section { padding: 28px 16px; }
+    .bfit-section-title { font-size: 22px; }
+    .cart-item {
+        grid-template-columns: 64px 1fr;
+        grid-template-rows: auto auto;
         .item-qty, .item-price, .item-remove { grid-column: 2; }
     }
-    .bfit-stats .stats-inner { gap: 16px; }
-    .stat-item .stat-value { font-size: 22px; }
+    .bfit-stats .stats-inner { gap: 12px; }
+    .stat-item .stat-value { font-size: 20px; }
+    .stat-item .stat-label { font-size: 11px; }
     .footer-inner { grid-template-columns: 1fr; gap: 24px; }
+    .bfit-category-page .category-header h1 { font-size: 24px; }
 }
 
 @media (max-width: 480px) {
-    .bfit-products-grid { grid-template-columns: 1fr; }
-    .bfit-cart-page { padding: 24px 16px; }
-    .bfit-product-page { padding: 24px 16px; }
+    .bfit-products-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .bfit-cart-page { padding: 20px 12px; }
+    .bfit-product-page { padding: 20px 12px; grid-template-columns: 1fr; }
+    .product-info h1 { font-size: 22px; }
+    .product-info .product-price { font-size: 26px; }
+    .bfit-trust-bar .bfit-trust-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 }

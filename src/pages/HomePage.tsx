@@ -36,7 +36,7 @@ const HeroBackground = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background: url('https://res.cloudinary.com/dy6rstttw/image/upload/v1755450580/fuckerintow_baniere_rkgglx.jpg') center/cover;
+  background: url('/nouvelle-baniere.jpeg') center/cover;
   z-index: 1;
   transform: translateZ(0);
   will-change: transform;
@@ -374,6 +374,55 @@ const ViewProductButton = styled(Link)`
     box-shadow: var(--shadow-lg);
   }
   box-shadow: var(--shadow-md);
+`;
+
+const TrustBar = styled.section`
+  background: #1a1a1a;
+  padding: var(--spacing-8) 0;
+`;
+
+const TrustGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-6);
+
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-4);
+  }
+`;
+
+const TrustItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  color: white;
+`;
+
+const TrustIcon = styled.div`
+  font-size: 28px;
+  flex-shrink: 0;
+`;
+
+const TrustText = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  strong {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  span {
+    font-size: 12px;
+    color: #999;
+    margin-top: 2px;
+  }
 `;
 
 const StatsSection = styled.section`
@@ -939,6 +988,41 @@ const HomePage: React.FC = () => {
         </Container>
       </SecondIntroSection>
 
+      <TrustBar>
+        <Container>
+          <TrustGrid>
+            <TrustItem>
+              <TrustIcon>🚚</TrustIcon>
+              <TrustText>
+                <strong>{language === 'fr' ? 'Livraison 48h' : '48h Delivery'}</strong>
+                <span>{language === 'fr' ? 'Expédition rapide garantie' : 'Fast shipping guaranteed'}</span>
+              </TrustText>
+            </TrustItem>
+            <TrustItem>
+              <TrustIcon>🔄</TrustIcon>
+              <TrustText>
+                <strong>{language === 'fr' ? 'Rétractation 14 jours' : '14-day return policy'}</strong>
+                <span>{language === 'fr' ? 'Retour sans question' : 'No questions asked'}</span>
+              </TrustText>
+            </TrustItem>
+            <TrustItem>
+              <TrustIcon>⭐</TrustIcon>
+              <TrustText>
+                <strong>{language === 'fr' ? '98% Satisfaction' : '98% Satisfaction'}</strong>
+                <span>{language === 'fr' ? 'Clients satisfaits' : 'Happy customers'}</span>
+              </TrustText>
+            </TrustItem>
+            <TrustItem>
+              <TrustIcon>🔒</TrustIcon>
+              <TrustText>
+                <strong>{language === 'fr' ? 'Paiement sécurisé' : 'Secure payment'}</strong>
+                <span>{language === 'fr' ? 'SSL & cryptage bancaire' : 'SSL & bank encryption'}</span>
+              </TrustText>
+            </TrustItem>
+          </TrustGrid>
+        </Container>
+      </TrustBar>
+
       <StatsSection>
         <Container>
           <StatsGrid>
@@ -981,7 +1065,7 @@ const HomePage: React.FC = () => {
               transition={{ duration: 0.6, delay: 0.3 }}
               viewport={{ once: true }}
             >
-              <StatNumber>24h</StatNumber>
+              <StatNumber>48h</StatNumber>
               <StatLabel>
                 {language === 'fr' ? 'Livraison express' : 'Express Delivery'}
               </StatLabel>

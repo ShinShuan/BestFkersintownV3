@@ -153,8 +153,8 @@ export const deepseekService = {
       fr: {
         'produits': "Nos produits sont conçus pour célébrer la diversité et l'authenticité. Découvrez nos collections inclusives sur notre site !",
         'commandes': "Pour suivre votre commande, connectez-vous à votre compte ou contactez-nous avec votre numéro de commande.",
-        'livraison': "Nous proposons une livraison express en 24h. Les frais de livraison varient selon votre localisation.",
-        'retours': "Les retours sont gratuits sous 30 jours. Contactez notre service client pour initier un retour.",
+        'livraison': "Nous proposons une livraison express en 48h. Les frais de livraison varient selon votre localisation.",
+        'retours': "Vous disposez d'un délai de 14 jours de rétractation à compter de la réception de votre commande. Contactez notre service client pour initier un retour.",
         'taille': "Nos vêtements sont conçus pour s'adapter à tous les corps. Consultez notre guide des tailles inclusif.",
         'prix': "Nos prix reflètent la qualité et l'inclusivité de nos produits. Nous proposons aussi des promotions régulières.",
         'contact': "Contactez-nous à contact@bestfkersintown.com ou appelez-nous au +33 1 23 45 67 89."
@@ -162,8 +162,8 @@ export const deepseekService = {
       en: {
         'produits': "Our products are designed to celebrate diversity and authenticity. Discover our inclusive collections on our website!",
         'commandes': "To track your order, log into your account or contact us with your order number.",
-        'livraison': "We offer express delivery in 24h. Shipping costs vary depending on your location.",
-        'retours': "Returns are free within 30 days. Contact our customer service to initiate a return.",
+        'livraison': "We offer express delivery in 48h. Shipping costs vary depending on your location.",
+        'retours': "You have a 14-day right of withdrawal from the date of receipt of your order. Contact our customer service to initiate a return.",
         'taille': "Our clothes are designed to fit all body types. Check out our inclusive size guide.",
         'prix': "Our prices reflect the quality and inclusivity of our products. We also offer regular promotions.",
         'contact': "Contact us at contact@bestfkersintown.com or call us at +33 1 23 45 67 89."

@@ -373,15 +373,14 @@ export const voteService = {
 
   async deleteVoteItem(id: string): Promise<boolean> {
     if (isSupabaseConfigured) {
-      const client: any = getSupabaseClient();
-      const { error } = await client.from('vote_items').delete().eq('id', id);
-
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
+      try {
+        const client: any = getSupabaseClient();
+        const { error } = await client.from('vote_items').delete().eq('id', id);
+        if (error) throw error;
+        return true;
+      } catch (err) {
+        console.warn('Supabase unavailable, falling back to localStorage:', err);
       }
-
-      return true;
     }
 
     // Fallback localStorage

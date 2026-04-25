@@ -86,30 +86,36 @@ const PageSubtitle = styled.p`
 
 const FiltersSection = styled.div`
   background: var(--white);
-  padding: var(--spacing-8);
-  border-radius: var(--radius-2xl);
-  box-shadow: var(--shadow-lg);
-  margin-bottom: var(--spacing-10);
+  padding: var(--spacing-4) var(--spacing-6);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--spacing-6);
   border: 1px solid var(--gray-100);
-  
+
   @media (max-width: 768px) {
-    padding: var(--spacing-4);
-    margin-bottom: var(--spacing-6);
+    padding: var(--spacing-3) var(--spacing-4);
+    margin-bottom: var(--spacing-4);
   }
 `;
 
 const FiltersRow = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-8);
-  
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-4);
+  align-items: end;
+
   @media (max-width: 900px) {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-4);
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-3);
   }
-  
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-2);
+  }
+
   &:not(:last-child) {
-    margin-bottom: var(--spacing-6);
+    margin-bottom: var(--spacing-3);
   }
 `;
 
@@ -121,17 +127,17 @@ const FilterGroup = styled.div`
 
 const FilterLabel = styled.label`
   font-weight: var(--font-semibold);
-  color: var(--gray-800);
-  font-size: var(--font-size-base);
+  color: var(--gray-700);
+  font-size: var(--font-size-sm);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 `;
 
 const FilterSelect = styled.select`
-  padding: var(--spacing-4);
-  border: 2px solid var(--gray-200);
-  border-radius: var(--radius-xl);
-  font-size: var(--font-size-base);
+  padding: var(--spacing-2) var(--spacing-3);
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
   background: var(--white);
   transition: all var(--transition-normal);
   font-weight: var(--font-medium);
@@ -139,7 +145,7 @@ const FilterSelect = styled.select`
   &:focus {
     outline: none;
     border-color: #d13296;
-    box-shadow: 0 0 0 3px rgba(209, 50, 150, 0.1);
+    box-shadow: 0 0 0 2px rgba(209, 50, 150, 0.1);
   }
 `;
 
@@ -946,18 +952,16 @@ const ProductsPage: React.FC = () => {
                 transition={{ duration: 0.3 }}
               >
                 <ProductImageContainer>
+                  <Link to={`/product/${product.id.split('/').pop()}`} style={{ display: 'block', height: '100%' }}>
                   <ProductImage
                     src={product.images[0]?.src || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop'}
                     alt={product.title}
                     onError={(e) => {
-                      console.log('❌ Erreur de chargement image:', product.title, product.images[0]?.src);
                       const target = e.target as HTMLImageElement;
                       target.src = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop';
                     }}
-                    onLoad={() => {
-                      console.log('✅ Image chargée:', product.title, product.images[0]?.src);
-                    }}
                   />
+                  </Link>
 
                   <ProductOverlay>
                     <ActionButton

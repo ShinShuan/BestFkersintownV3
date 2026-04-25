@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ShoppingCart, 
   Menu, 
@@ -184,7 +183,7 @@ const MobileMenuButton = styled(ActionButton)`
   }
 `;
 
-const MobileMenu = styled(motion.div)`
+const MobileMenu = styled.div`
   position: fixed;
   top: 70px;
   left: 0;
@@ -194,7 +193,15 @@ const MobileMenu = styled(motion.div)`
   padding: var(--spacing-4);
   z-index: 40;
   box-shadow: var(--shadow-lg);
-  
+  overflow: hidden;
+  transform-origin: top;
+  animation: slideDown 0.25s ease forwards;
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
   @media (max-width: 768px) {
     top: 60px;
   }
@@ -366,14 +373,9 @@ const Header: React.FC = () => {
         </HeaderActions>
       </HeaderContent>
 
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <MobileMenu
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-          >
+      {isMobileMenuOpen && (
+        <>
+          <MobileMenu>
             <MobileNav>
               {navItems.map(item => (
                 <MobileNavItem
@@ -401,8 +403,8 @@ const Header: React.FC = () => {
               )}
             </MobileNav>
           </MobileMenu>
-        )}
-      </AnimatePresence>
+        </>
+      )}
 
       {/* Gestionnaire d'administration */}
       <AdminVoteManager 

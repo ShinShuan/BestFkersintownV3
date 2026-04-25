@@ -485,8 +485,12 @@ const AccountPage: React.FC = () => {
             boxShadow: 'var(--shadow-lg)',
             border: '1px solid var(--gray-100)'
           }}>
-            <a
-              href="https://bestfkersintown.mybigcommerce.com/login"
+            <button
+              onClick={() => {
+                const userMenuBtn = document.querySelector('[data-usermenu-trigger]') as HTMLElement;
+                if (userMenuBtn) { userMenuBtn.click(); }
+                else { window.location.href = '/'; }
+              }}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -508,11 +512,11 @@ const AccountPage: React.FC = () => {
             >
               <LogIn size={20} />
               {language === 'fr' ? 'Se connecter / Créer un compte' : 'Sign In / Create Account'}
-            </a>
+            </button>
             <p style={{ textAlign: 'center', fontSize: '13px', color: 'var(--gray-500)', margin: 0 }}>
               {language === 'fr'
-                ? 'Vous serez redirigé vers la page de connexion sécurisée BigCommerce'
-                : 'You will be redirected to the secure BigCommerce login page'}
+                ? 'Cliquez sur l\'icône utilisateur en haut à droite pour vous connecter'
+                : 'Click the user icon in the top right corner to sign in'}
             </p>
           </div>
         </Container>

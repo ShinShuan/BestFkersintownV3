@@ -357,21 +357,15 @@ const ProductDetailPage: React.FC = () => {
             {/* Informations supplémentaires */}
             <ProductFeatures>
               <FeatureItem>
-                <Package size={20} />
-                <FeatureText>
-                  {language === 'fr' ? 'Livraison gratuite' : 'Free shipping'}
-                </FeatureText>
-              </FeatureItem>
-              <FeatureItem>
                 <Truck size={20} />
                 <FeatureText>
-                  {language === 'fr' ? 'Livraison rapide' : 'Fast delivery'}
+                  {language === 'fr' ? 'Livraison rapide 48h' : 'Fast delivery 48h'}
                 </FeatureText>
               </FeatureItem>
               <FeatureItem>
                 <Shield size={20} />
                 <FeatureText>
-                  {language === 'fr' ? 'Garantie 30 jours' : '30-day warranty'}
+                  {language === 'fr' ? 'Rétractation 14 jours' : '14-day return policy'}
                 </FeatureText>
               </FeatureItem>
             </ProductFeatures>
