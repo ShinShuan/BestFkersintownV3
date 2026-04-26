@@ -16,34 +16,15 @@ const HomeContainer = styled.div`
 
 const HeroSection = styled.section`
   position: relative;
-  height: 80vh;
-  min-height: 600px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 100%;
   background: var(--white);
-  overflow: hidden;
-  
-  @media (max-width: 768px) {
-    height: 50vh;
-    min-height: 350px;
-  }
+  line-height: 0;
 `;
 
-const HeroBackground = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url('/nouvelle-baniere.jpeg') center/cover;
-  z-index: 1;
-  transform: translateZ(0);
-  will-change: transform;
-  
-  @media (max-width: 768px) {
-    background-position: center 25%;
-  }
+const HeroImage = styled.img`
+  display: block;
+  width: 100%;
+  height: auto;
 `;
 
 const HeroContent = styled.div`
@@ -700,7 +681,7 @@ const HomePage: React.FC = () => {
   return (
     <HomeContainer>
       <HeroSection>
-        <HeroBackground />
+        <HeroImage src="/nouvelle-baniere.jpeg" alt="BestF.kersinTown" />
         <HeroContent>
           <HeroTitle
             initial={{ opacity: 0, y: 30 }}
